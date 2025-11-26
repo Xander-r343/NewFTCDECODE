@@ -1,0 +1,70 @@
+package org.firstinspires.ftc.teamcode.Subsystems;
+
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.teamcode.Configs.Config;
+
+public class MecanumDrivetrain {
+    public DcMotor backLeft;
+    public DcMotor frontLeft;
+    public DcMotor backRight;
+    public DcMotor frontRight;
+    private Config config;
+    private double max;
+    private double max_Speed;
+    public MecanumDrivetrain(double Max_Speed, HardwareMap hardwareMap){
+        config = new Config();
+        //back left
+        backLeft = hardwareMap.get(DcMotor.class, config.backLeft);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //front left
+        frontLeft = hardwareMap.get(DcMotor.class, config.frontLeft);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //back right
+        backRight = hardwareMap.get(DcMotor.class, config.backRight);
+        backRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //front right
+        frontRight = hardwareMap.get(DcMotor.class, config.frontRight);
+        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        if(Max_Speed > 1.0){
+            Max_Speed = 1.0;
+        }
+        max_Speed = Max_Speed;
+    }
+    public void drive(double axial, double lateral, double yaw){
+        double leftFrontPower  = axial + lateral + yaw;
+        double leftBackPower   = axial - lateral + yaw;
+        double rightBackPower  = axial + lateral - yaw;
+        double rightFrontPower = axial - lateral - yaw;
+        //abs value
+        max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
+        max = Math.max(max, Math.abs(leftBackPower));
+        max = Math.max(max, Math.abs(rightBackPower));
+        if (max > 1.0) {
+            leftFrontPower  /= max;
+            rightFrontPower /= max;
+            leftBackPower   /= max;
+            rightBackPower  /= max;
+        }
+
+        frontLeft.setPower(leftFrontPower* max_Speed);
+        backLeft.setPower(leftBackPower*max_Speed);
+        backRight.setPower(rightBackPower*max_Speed);
+        frontRight.setPower(rightFrontPower*max_Speed);
+    }
+    public void modifyMaxSpeed(double newMultiplier){
+        max_Speed = newMultiplier;
+
+    }
+}
