@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -35,17 +36,16 @@ public class LatestTeleOp extends OpMode {
         //initialize Config
         config = new Config();
         rbgIndicator = hardwareMap.get(Servo.class, config.RBGName);
-        pods.setPosition(72, 8 ,-90);
+        pods.setPosition((double )blackboard.get(config.Xkey), (double )blackboard.get(config.Ykey) ,(double)blackboard.get(config.HeadingKey));
         //initialize the robotSubsystem class
         robotSubsystem = new ShooterSubsystem(hardwareMap);
-        aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
+        aimbots = new Aimbots((int)blackboard.get(config.AllianceKey), pods, hardwareMap);
         engage = false;
         dist = 0;
         vel = 3500;
         flywheelActive = false;
         aimbots.startLL();
-        aimbots.switchPipeline(0);
-    }
+        aimbots.switchPipeline(0);}
 
     @Override
     public void loop() {
@@ -64,9 +64,11 @@ public class LatestTeleOp extends OpMode {
 
         if(gamepad1.right_trigger > 0){
             robotSubsystem.spinIntake(gamepad1.right_trigger);
+            robotSubsystem.spinBelt(gamepad1.right_trigger);
         }
         else if(gamepad1.right_bumper){
             robotSubsystem.spinIntake(-1);
+            robotSubsystem.spinBelt(-1);
         }
         else{
             robotSubsystem.spinIntake(0);
@@ -82,12 +84,17 @@ public class LatestTeleOp extends OpMode {
         // control launch feeder
         if(gamepad1.left_trigger > 0) {
             robotSubsystem.spinBelt(gamepad1.left_trigger);
+            robotSubsystem.spinIntake(gamepad1.left_trigger);
+            robotSubsystem.setServoPosition(1);
         }
         else if(gamepad1.left_bumper){
             robotSubsystem.spinBelt(-1);
+            robotSubsystem.spinIntake(-1);
         }
         else{
             robotSubsystem.spinBelt(0);
+            robotSubsystem.setServoPosition(0.3);
+            robotSubsystem.spinIntake(0);
         }
         //flywheel controls
         if(currentGamepad1.dpad_down && !previousGamepad1.dpad_down){
@@ -130,6 +137,8 @@ public class LatestTeleOp extends OpMode {
 
         // write telemetry to Drive Hub
         telemetry.addData("LL", aimbots.LLstatusIsValid());
+        telemetry.addData("rpm", robotSubsystem.getRpm());
+        telemetry.addData("distance", aimbots.calculateSideLengthUsingPods());
         telemetry.update();
     }
 

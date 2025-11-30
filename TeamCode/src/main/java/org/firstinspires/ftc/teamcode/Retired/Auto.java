@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.Retired;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 
-@Config
 @Disabled
 public class Auto extends OpMode {
     private MecanumDrivetrain drive;

@@ -52,5 +52,17 @@ public class Config {
     public final double Green = 0.5;
     public final double Red = 0.277;
 
+    //pindexer
+    public final String stbSv = "starboardServo";
+    public final String ptSv = "portServo";
+    public final String sl0 = "slot0";
+    public final String sl1 = "slot1";
+
+    public final String sl2 = "slot2";
+
+    public final double slot0ServoPosition = 0.33;
+    public final double slot1ServoPosition = 0.67;
+    public final double slot2ServoPosition = 1.0;
+
 
 }

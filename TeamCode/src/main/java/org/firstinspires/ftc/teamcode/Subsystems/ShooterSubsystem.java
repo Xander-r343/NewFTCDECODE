@@ -20,6 +20,13 @@ public class ShooterSubsystem {
     DcMotor intake;
     int targetRpm;
 
+    private double kP, kI, kD;
+    private double integralSum = 0;
+    private double lastError = 0;
+    private com.qualcomm.robotcore.util.ElapsedTime timer = new com.qualcomm.robotcore.util.ElapsedTime();
+
+// In your init() or start() method
+
     public ShooterSubsystem(HardwareMap hwMap) {
         config = new Config();
         flywheel = hwMap.get(DcMotorEx.class, config.MainFlywheelMotorName);
@@ -38,6 +45,9 @@ public class ShooterSubsystem {
         table = new RpmLookupTable();
         gate = hwMap.get(Servo.class, config.GateServoName);
         intake = hwMap.get(DcMotor.class, "intake");
+        kP = 0.0001;
+        kI = 0.0001;
+        kD = 0;
 
 
     }
@@ -107,14 +117,35 @@ public class ShooterSubsystem {
         starboardBelt.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public void setTargetRpm() {
-
+    public void setTargetRpm(int giventargetRpm) {
+        targetRpm = giventargetRpm;
     }
+    public void calculate() {
+        // Calculate error
+        double error =  targetRpm - getRpm();
 
+        // Proportional term
+        double proportional = error * kP;
 
+        // Integral term
+        integralSum += (error * timer.seconds());
+        // Implement integral windup mitigation here if needed
 
+        // Derivative term
+        double derivative = (error - lastError) / timer.seconds();
 
+        // Update last error and reset timer for next iteration
+        lastError = error;
+        timer.reset();
+
+        // Calculate total output
+        flywheel.setPower(-(proportional + integralSum + derivative)/10);
+    }
 }
+
+
+
+
 
 
 

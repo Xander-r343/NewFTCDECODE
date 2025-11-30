@@ -10,17 +10,15 @@ public class RpmLookupTable {
     public RpmLookupTable(){
 
         //k is distance and v is rpm
-        distanceAndRpm.put(45,2550);
-        distanceAndRpm.put( 51, 2600);
-        distanceAndRpm.put(56, 2650);
-        distanceAndRpm.put(61, 2650);
-        distanceAndRpm.put(66,2750);
-        distanceAndRpm.put(71, 2800);
-        distanceAndRpm.put(76, 2850);
-        distanceAndRpm.put(81, 2950);
-        distanceAndRpm.put(86, 2950);
-        distanceAndRpm.put(92,3000);
-        distanceAndRpm.put(98,3150);
+        distanceAndRpm.put(55,  2550);
+        distanceAndRpm.put(60, 2600);
+        distanceAndRpm.put(65,2700);
+        distanceAndRpm.put(70, 2750);
+        distanceAndRpm.put(75, 2875);
+        distanceAndRpm.put(80, 2950);
+        distanceAndRpm.put(85, 3000);
+        distanceAndRpm.put(90,3050);
+        distanceAndRpm.put(95,3150);
         distanceAndRpm.put(105, 3250);
         distanceAndRpm.put(110, 3300);
         distanceAndRpm.put(117, 3550);

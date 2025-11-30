@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 import org.firstinspires.ftc.teamcode.Subsystems.Aimbots;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
-@TeleOp
+@Disabled
 public class FINALteleOp extends OpMode {
     Servo rbgIndicator;
     public Gamepad currentGamepad1 = new Gamepad();
