@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 
+@Autonomous
 public class AutoTest extends OpMode {
     MecanumDrivetrain drivetrain;
     OdoPods pods;
@@ -24,6 +26,7 @@ public class AutoTest extends OpMode {
     public void init() {
         drivetrain = new MecanumDrivetrain(speed, hardwareMap);
         pods = new OdoPods(hardwareMap, drivetrain);
+        pods.setPosition(0,0,0);
     }
 
     @Override
