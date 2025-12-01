@@ -29,8 +29,12 @@ public class AutoTest extends OpMode {
     @Override
     public void loop() {
         StateMachine();
-
-
+        pods.update();
+        telemetry.addData("xposition", pods.getX());
+        telemetry.addData("yPosition", pods.getY());
+        telemetry.addData("heading", pods.getHeading());
+        telemetry.addData("currentState", currentState);
+        telemetry.update();
     }
 
     public void StateMachine(){
