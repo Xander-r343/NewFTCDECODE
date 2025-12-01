@@ -10,9 +10,9 @@ import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 public class AutoTest extends OpMode {
     MecanumDrivetrain drivetrain;
     OdoPods pods;
-    public double speed = 0.5;
+    public double speed = 0.7;
 
-    public double pos1x = 0, pos1y= 10 ,pos1h = 0;
+    public double pos1x = 0, pos1y= 30 ,pos1h = 0;
 
     public double pos2x=0, pos2y=0, pos2h=0;
 
@@ -47,7 +47,6 @@ public class AutoTest extends OpMode {
                 currentState = States.Position1;
             break;
 
-
             case Position1:
                 if(moveToPos1()){
                     currentState = States.Position2;
@@ -68,7 +67,6 @@ public class AutoTest extends OpMode {
 
         }
     }
-
     public boolean moveToPos1(){
        return pods.holdPosition(pos1x,pos1y,pos1h,0.8);
     }
