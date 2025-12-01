@@ -84,15 +84,23 @@ public class ShooterSubsystem {
      * sets the target position
      */
     public void setTargetPosition(int pose) {
+        starboardBelt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         starboardBelt.setTargetPosition(starboardBelt.getCurrentPosition() + pose);
     }
 
     public void updateBeltPosition() {
-        starboardBelt.setPower(1);
-        portBelt.setPower(starboardBelt.getPower());
+        if(beltIsBusy()) {
+            starboardBelt.setPower(1);
+        }
+            portBelt.setPower(starboardBelt.getPower()*0.3);
+
     }
-
-
+    public boolean beltIsBusy(){
+        return starboardBelt.isBusy();
+    }
+    public double beltPose(){
+        return starboardBelt.getCurrentPosition();
+    }
     public void setRpmUsingTable(int distance) {
         setFlywheelVelocity(-table.getRpm(distance));
     }
@@ -111,6 +119,9 @@ public class ShooterSubsystem {
 
     public int getPositionOfBelts() {
         return starboardBelt.getCurrentPosition();
+    }
+    public void stopBelt(){
+        portBelt.setPower(0);
     }
 
     public void resetBeltTicks() {

@@ -90,7 +90,34 @@ public class FarBlueAuto extends LinearOpMode {
                         //pods.holdHeading(targetH, 1);
                     }
                     robotSubsystem.setFlywheelVelocity(flywheelSpeed);
-                    pods.holdHeading(targetH, 1);
+                    if(pods.holdHeading(targetH, 1)){
+                        AutoState = 2;
+                    }
+                }
+                break;
+                case 2:{
+                    double speed = 0.4;
+                    robotSubsystem.setServoPosition(1);
+                    //fire the first 3 artifacts
+                    while(timer.seconds() < 7) {
+                        robotSubsystem.spinIntake(speed);
+                        robotSubsystem.spinBelt(0.4);
+
+                        if(timer.seconds() > 6.8){
+                            shutOff();
+                            robotSubsystem.setServoPosition(0);
+                            AutoState = 3;
+                            robotSubsystem.setFlywheelVelocity(flywheelSpeed);
+                            robotSubsystem.spinIntake(1);
+                        }
+                        else if(timer.seconds() > 4 && timer.seconds() < 5){
+                            robotSubsystem.setServoPosition(0);
+                        }
+                        if(timer.seconds() > 5 && timer.seconds() < 6.7){
+                            robotSubsystem.setServoPosition(1);
+                        }
+                        speed -= 0.0003;
+                    }
                 }
                 break;
             }

@@ -69,13 +69,10 @@ public class LatestTeleOp extends OpMode {
             robotSubsystem.spinIntake(gamepad1.right_trigger);
             robotSubsystem.spinBelt(gamepad1.right_trigger);
         }
-        else if(gamepad1.right_bumper){
-            robotSubsystem.spinIntake(-1);
-            robotSubsystem.spinBelt(-1);
-        }
         else{
             robotSubsystem.spinIntake(0.6);
         }
+
         // Set launch velocity light
         if((robotSubsystem.getRpm()) < vel+50 && robotSubsystem.getRpm() > vel-50){
             rbgIndicator.setPosition(config.Green);
@@ -85,7 +82,7 @@ public class LatestTeleOp extends OpMode {
         }
 
         // control launch feeder
-        if(gamepad1.left_trigger > 0) {
+        /*if(gamepad1.left_trigger > 0) {
             robotSubsystem.spinBelt(gamepad1.left_trigger);
             robotSubsystem.spinIntake(gamepad1.left_trigger);
             robotSubsystem.setServoPosition(1);
@@ -98,7 +95,19 @@ public class LatestTeleOp extends OpMode {
             robotSubsystem.spinBelt(0);
             robotSubsystem.setServoPosition(0.45);
             robotSubsystem.spinIntake(0.6);
+        }*/
+        if(currentGamepad1.right_bumper && !previousGamepad1.right_bumper){
+            robotSubsystem.setServoPosition(1);
+            robotSubsystem.setTargetPosition(500);
+            robotSubsystem.spinBelt(1);
         }
+        if(!robotSubsystem.beltIsBusy()){
+            robotSubsystem.setServoPosition(0.45);
+            robotSubsystem.spinBelt(0);
+        }
+        robotSubsystem.updateBeltPosition();
+
+
         //flywheel controls
         if(currentGamepad1.dpad_down && !previousGamepad1.dpad_down){
             vel -= 50;
@@ -145,6 +154,7 @@ public class LatestTeleOp extends OpMode {
         // Control Intake wheel
 
         // write telemetry to Drive Hub
+        telemetry.addData("belt", robotSubsystem.getPositionOfBelts());
         telemetry.addData("x", pods.getX());
         telemetry.addData("y", pods.getY());
         telemetry.addData("h", pods.getHeading());
