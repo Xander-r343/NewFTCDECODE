@@ -38,7 +38,6 @@ public class LatestTeleOp extends OpMode {
         //initialize Config
         config = new Config();
         rbgIndicator = hardwareMap.get(Servo.class, config.RBGName);
-        pods.setPosition((double)blackboard.get(config.Xkey), (double)blackboard.get(config.Ykey) ,(double)blackboard.get(config.HeadingKey));
         //initialize the robotSubsystem class
         robotSubsystem = new ShooterSubsystem(hardwareMap);
         aimbots = new Aimbots((int)blackboard.get(config.AllianceKey), pods, hardwareMap);
@@ -82,8 +81,13 @@ public class LatestTeleOp extends OpMode {
         }
 
         // control launch feeder
-        /*if(gamepad1.left_trigger > 0) {
-            robotSubsystem.spinBelt(gamepad1.left_trigger);
+        if(currentGamepad1.right_bumper && !previousGamepad1.right_bumper){
+            robotSubsystem.setServoPosition(1);
+            robotSubsystem.setTargetPosition(500);
+            robotSubsystem.spinBelt(1);
+        }
+        else if(gamepad1.left_trigger > 0) {
+            robotSubsystem.setTargetPosition(80);
             robotSubsystem.spinIntake(gamepad1.left_trigger);
             robotSubsystem.setServoPosition(1);
         }
@@ -91,17 +95,7 @@ public class LatestTeleOp extends OpMode {
             robotSubsystem.spinBelt(-1);
             robotSubsystem.spinIntake(-1);
         }
-        else{
-            robotSubsystem.spinBelt(0);
-            robotSubsystem.setServoPosition(0.45);
-            robotSubsystem.spinIntake(0.6);
-        }*/
-        if(currentGamepad1.right_bumper && !previousGamepad1.right_bumper){
-            robotSubsystem.setServoPosition(1);
-            robotSubsystem.setTargetPosition(500);
-            robotSubsystem.spinBelt(1);
-        }
-        if(!robotSubsystem.beltIsBusy()){
+        else if(!robotSubsystem.beltIsBusy()){
             robotSubsystem.setServoPosition(0.45);
             robotSubsystem.spinBelt(0);
         }

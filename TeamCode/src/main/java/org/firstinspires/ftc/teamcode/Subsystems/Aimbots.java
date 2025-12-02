@@ -73,10 +73,10 @@ public class Aimbots {
      */
     public double getIdealAngle() {
         double toReturn = 0;
-        if (Math.toDegrees(Math.acos(((CVertX - AvertX) / calculateSideLengthUsingPods()))) > 180) {
+        /*if (Math.toDegrees(Math.acos(((CVertX - AvertX) / calculateSideLengthUsingPods()))) > 180) {
         } else {
             toReturn = Math.toDegrees(Math.acos(((CVertX - AvertX) / calculateSideLengthUsingPods()))) - 150;
-        }
+        }*/
 
         return -Math.toDegrees(Math.acos(((CVertX - AvertX) / calculateSideLengthUsingPods()))) + 90;
 

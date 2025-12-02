@@ -84,8 +84,8 @@ public class ShooterSubsystem {
      * sets the target position
      */
     public void setTargetPosition(int pose) {
-        starboardBelt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         starboardBelt.setTargetPosition(starboardBelt.getCurrentPosition() + pose);
+        starboardBelt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public void updateBeltPosition() {

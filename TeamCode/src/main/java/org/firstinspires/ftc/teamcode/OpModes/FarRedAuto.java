@@ -32,6 +32,14 @@ public class FarRedAuto extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     int tagID;
     int flywheelSpeed;
+    double driveSpeed;
+    double headingSpeed;
+    double targetH;
+    double nextX;
+    double nextY;
+    double nextH;
+    double nextPower;
+
     @Override
     public void runOpMode() throws InterruptedException {
         drivetrain = new MecanumDrivetrain(1, hardwareMap);
@@ -39,13 +47,7 @@ public class FarRedAuto extends LinearOpMode {
         pathDatabase = new RedAutoPaths();
         config = new Config();
         robotSubsystem = new ShooterSubsystem(hardwareMap);
-        robotSubsystem.setServoPosition(0);
         //intialize blackboard objects
-        Xpos = blackboard.getOrDefault(config.Xkey, 0);
-        Ypos = blackboard.getOrDefault(config.Ykey, 0);
-        Headingpos = blackboard.getOrDefault(config.HeadingKey, 0);
-        Alliance = blackboard.getOrDefault(config.AllianceKey, 0);//isRedValue
-        blackboard.put(config.AllianceKey, config.BlueAlliance);
         AutoState = 0;
         //initialize odopods by using the config class
         pods.setPosition(88, 9, 0);
@@ -54,125 +56,119 @@ public class FarRedAuto extends LinearOpMode {
         aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
         rgb = hardwareMap.get(Servo.class, config.RBGName);
         flywheelSpeed = 2600;
+        robotSubsystem.setServoPosition(0.5);
+        driveSpeed = 0.4;
         waitForStart();
+        headingSpeed = 0.5;
         runtime.reset();
         timer.reset();
-        while(opModeIsActive()){
-            rgb.setPosition(config.Green);
+        while (opModeIsActive()) {
             aimbots.update();
-            switch (AutoState){
-                case 0:{
-                    robotSubsystem.setFlywheelVelocity(flywheelSpeed);
+            switch (AutoState) {
+                case 0: {
+                    //drive forward spin intake, etc
                     aimbots.startLL();
-                    aimbots.switchPipeline(0);
+                    aimbots.switchPipeline(1);
                     robotSubsystem.spinIntake(1);
-                    timer.startTime();
-                    //go to launch position and use aimbots to align to goal
-                    pods.holdPosition(88, 90, 0, 0.8);
-                    pods.update();
-                    //start flywheel early to get up to speed and keep it
-                    if (timer.seconds() < 2) {
-                        pods.holdPosition(88, 90, 0, 0.8);
+                    robotSubsystem.setFlywheelVelocity(flywheelSpeed);
+                    while(!pods.holdPosition(88,84,0,1)){
                         pods.update();
-                    }
-
-                    if(timer.seconds() > 2){
-                        AutoState = 1;
+                        telemetry.addData("x", pods.getX());
+                        telemetry.addData("y", pods.getY());
+                        telemetry.addData("h", pods.getHeading());
+                        telemetry.addData("I see apriltag: ", aimbots.LLstatusIsValid());
+                        telemetry.update();
+                        if(pods.holdPosition(88,84,0,1)){
+                            AutoState = 1;
+                            targetH = aimbots.getIdealAngle();
+                        }
                     }
                 }
                 break;
-                case 1:{
-                    //align for 1 secs, ended with 2
+                case 1: {
+                    //turn robot to face goal and fire 3 artifacts
+                    targetH = aimbots.getIdealAngle();
+                    timer.startTime();
                     while(timer.seconds() < 3.2) {
                         double targetH;
-                        //align using limelight and pods to shoot in goal
-                        if (aimbots.LLstatusIsValid()) {
-                            targetH = pods.getHeading() - aimbots.getHeadingErrorLL();
-                        } else {
-                            targetH = aimbots.getIdealAngle()-9;
-                        }
+                        //align using pods to shoot in goal
+                        targetH = aimbots.getIdealAngle();
+
                         pods.holdHeading(targetH, 1);
                         aimbots.update();
-                        if(timer.seconds() > 3.1){
+                        if(timer.seconds() > 2.9){
                             AutoState = 2;
                         }
                     }
-
                 }
                 break;
                 case 2:{
-                    double speed = 0.4;
+                    double speed = 0.6;
                     robotSubsystem.setServoPosition(1);
                     //fire the first 3 artifacts
-                    while(timer.seconds() < 7) {
+                    timer.reset();
+                    timer.startTime();
+                    while(timer.seconds() < 4) {
                         robotSubsystem.spinIntake(speed);
                         robotSubsystem.spinBelt(0.4);
-
-                        if(timer.seconds() > 6.8){
+                        if(timer.seconds() > 4.8){
                             shutOff();
                             robotSubsystem.setServoPosition(0);
                             AutoState = 3;
                             robotSubsystem.setFlywheelVelocity(flywheelSpeed);
                             robotSubsystem.spinIntake(1);
                         }
-                        else if(timer.seconds() > 4 && timer.seconds() < 5){
+                        else if(timer.seconds() > 0.4 && timer.seconds() < 2){
                             robotSubsystem.setServoPosition(0);
                         }
-                        if(timer.seconds() > 5 && timer.seconds() < 6.7){
+                        if(timer.seconds() > 2 && timer.seconds() < 4){
                             robotSubsystem.setServoPosition(1);
                         }
                         speed -= 0.0003;
                     }
+                    robotSubsystem.setServoPosition(0);
+                    AutoState = 3;
                 }
                 break;
                 case 3:{
-                    pods.holdHeading(90,1);
                     pods.update();
                     //strafe to align with pickup balls
-                    while(timer.seconds() < 8.5){
-                        pods.holdPosition(88,95,90,1);
+                    while(!pods.holdPosition(98,84,90,1)) {
                         pods.update();
                     }
-                    //speed up flywheel early
                     robotSubsystem.spinIntake(1);
                     robotSubsystem.spinBelt(0.4);
                     timer.reset();
                     timer.startTime();
                     //pickup 2 more balls from far pickup
-                    while(timer.seconds() < 2.1){
-                        //TODO adjust this 115 x for 3rd ball if necessary
-                        pods.holdPosition(125,95,90,0.5);
+                    while(timer.seconds() < 1.5){
+                        //adjust this 115 x for 3rd ball if necessary
+                        pods.holdPosition(133,84,90,1);
                         pods.update();
                     }
-                    while(timer.seconds() < 2.8) {
+                    while(!pods.holdPosition(98, 95, 90, 1)) {
                         //move back to fire
-                        pods.holdPosition(76, 100, 90, 1);
                         pods.update();
-                        if(timer.seconds() > 2.7){
-                            AutoState = 4;
-                        }
+
                     }
+                    AutoState = 4;
                     robotSubsystem.spinIntake(1);
                 }
                 break;
                 case 4:{
+                    timer.reset();
                     //align to goal using limelight
-                    while(timer.seconds() < 4) {
+                    while(timer.seconds() < 2) {
                         double targetH;
-                        //align using limelight and pods to shoot in goal
-                        if (aimbots.LLstatusIsValid()) {
-                            targetH = pods.getHeading() - aimbots.getHeadingErrorLL();
-                        } else {
-                            targetH = aimbots.getIdealAngle()-5;
-                        }
+                        targetH = aimbots.getIdealAngle();
                         pods.holdHeading(targetH, 1);
                         aimbots.update();
                     }
                     //fire balls
-                    while(timer.seconds() < 6.7) {
+                    while(timer.seconds() < 7) {
                         robotSubsystem.setServoPosition(1);
-                        robotSubsystem.spinBelt(0.4);
-                        if(timer.seconds() > 6.6){
+                        robotSubsystem.spinBelt(0.5);
+                        if(timer.seconds() > 6.9){
                             shutOff();
                             AutoState = 5;
                             robotSubsystem.setServoPosition(0);
@@ -181,51 +177,53 @@ public class FarRedAuto extends LinearOpMode {
                 }
                 break;
                 case 5:{
-                    while(timer.seconds() < 8) {
+                    while(timer.seconds() < 7.3) {
                         pods.holdHeading(90, 1);
                         pods.update();
                     }
-                    robotSubsystem.spinIntake(0.7);
+                    robotSubsystem.spinIntake(1);
                     //prepare for another pickup
-                    while(timer.seconds() < 10){
-                        pods.holdPosition(95,72,90,1);
+                    while(timer.seconds() < 8.5){
+                        pods.holdPosition(96,60.5,90,1);
                         pods.update();
                     }
                     AutoState = 6;
                 }
+                break;
                 case 6:{
+                    //pickup ball
                     timer.reset();
-                    timer.startTime();//
-                    robotSubsystem.spinIntake(1);
-                    robotSubsystem.spinBelt(0.6);
-                    while(timer.seconds() < 1.6){
-                        pods.holdPosition(120, 72, 90, 0.5);
+                    timer.startTime();
+                    robotSubsystem.spinIntake(0.7);
+                    robotSubsystem.spinBelt(1);
+                    while(timer.seconds() < 2){
+                        pods.holdPosition(130, 60.5, 90, 0.4);
                         pods.update();
                     }
                     AutoState = 7;
                 }
                 break;
                 case 7: {
-                    while (timer.seconds() < 3.6) {
-                        pods.holdPosition(82, 104, 90, 1);
+                    while (timer.seconds() < 3.8) {
+                        pods.holdPosition(94, 90, 90, 1);
                         pods.update();
                     }
                     robotSubsystem.setFlywheelVelocity(flywheelSpeed);
-                    while(timer.seconds() < 4.6){
+                    while(timer.seconds() < 5.2){
                         double targetH;
                         //align using limelight and pods to shoot in goal
-                        if (aimbots.LLstatusIsValid()) {
-                            targetH = pods.getHeading() - aimbots.getHeadingErrorLL();
-                        } else {
-                            targetH = aimbots.getIdealAngle()-8;
-                        }
+                        /*if (aimbots.LLstatusIsValid()) {
+                            //targetH = pods.getHeading() - aimbots.getHeadingErrorLL();
+
+                        } else {*/
+                        targetH = aimbots.getIdealAngle();
+                        //}
                         pods.holdHeading(targetH, 1);
                         aimbots.update();
-                        if(timer.seconds() > 3.7){
-                            AutoState = 2;
+                        if(timer.seconds() > 4.5){
+                            AutoState = 8;
                         }
                     }
-                    AutoState = 8;
                 }
                 break;
                 case 8:{
@@ -234,16 +232,35 @@ public class FarRedAuto extends LinearOpMode {
                         robotSubsystem.setServoPosition(1);
                         robotSubsystem.spinBelt(0.4);
                     }
-                    pods.holdPosition(110, 80, 90, 1);
+                    robotSubsystem.setServoPosition(0);
+
+                    pods.holdPosition(129, 80, 90, 1);
                     pods.update();
+
                 }
                 break;
             }
-            blackboard.put(config.Xkey, pods.getX());
-            blackboard.put(config.Ykey, pods.getY());
-            blackboard.put(config.HeadingKey, pods.getHeading());
+
         }
+
+        aimbots.update();
+        telemetry.addData("x", pods.getX());
+        telemetry.addData("y", pods.getY());
+        telemetry.addData("h", pods.getHeading());
+        telemetry.addData("I see apriltag: ", aimbots.LLstatusIsValid());
+        telemetry.update();
     }
+    public boolean goToPosition(){
+        return pods.holdPosition(nextX,nextY,nextH,nextPower);
+    }
+    public boolean goToHeading(){
+        return pods.holdHeading(nextH,nextPower);
+    }
+
+
+
+
+
     public void resetArtifacts(){
         robotSubsystem.setFlywheelVelocity(-300);
         robotSubsystem.spinBelt(-0.2);
@@ -253,4 +270,3 @@ public class FarRedAuto extends LinearOpMode {
         robotSubsystem.spinBelt(0);
     }
 }
-
