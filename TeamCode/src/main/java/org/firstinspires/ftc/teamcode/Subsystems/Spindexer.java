@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 
 
 import static org.firstinspires.ftc.teamcode.Subsystems.Spindexer.color.GREEN;
+import static org.firstinspires.ftc.teamcode.Subsystems.Spindexer.color.PURPLE;
+import static org.firstinspires.ftc.teamcode.Subsystems.Spindexer.color.UNDECTED;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -10,6 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Configs.Config;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class Spindexer {
     private Servo starboardServo;
@@ -23,10 +26,7 @@ public class Spindexer {
     public enum motif{
         PPG, PGP, GPP
     }
-    public color slot0status;
-    public color slot1status;
 
-    public color slot2status;
 
 
     Config config;
@@ -53,7 +53,6 @@ public class Spindexer {
         slot2.enableLed(true);
 
     }
-
     /**
      * spins the spindexer to a slot
      * @param givenSlot is a number between 0-2 and is the wanted spindexer slot
@@ -61,12 +60,15 @@ public class Spindexer {
     public void spinToPose(int givenSlot){
         if(givenSlot == 0){
             starboardServo.setPosition(config.slot0ServoPosition);
+            portServo.setPosition(1-config.slot0ServoPosition);
         }
         else if(givenSlot == 1){
             starboardServo.setPosition(config.slot1ServoPosition);
+            portServo.setPosition(1-config.slot1ServoPosition);
         }
         else if(givenSlot == 2){
             starboardServo.setPosition(config.slot2ServoPosition);
+            portServo.setPosition(1-config.slot2ServoPosition);
         }
         else{
 
@@ -132,147 +134,74 @@ public class Spindexer {
 
     /**
      * returns the ideal routing of slots to get pattern/motif
-     * @param currentMotif is the current motif using enum
+     * @param givenFirstBall first ball color in the motif
+     * @param givenSecondBall second ball color in motif
+     * @param givenThirdBall etc.
      * @return int [] of the slots
+     *
      */
-    public int[] determineBestSpinRoute(motif currentMotif){
+    public int[] determineBestSpinRoute(color givenFirstBall, color givenSecondBall, color givenThirdBall){
         int[] order = new int[2];
-        color[] slotColors = new color[2];
-        for(int i = 0; i < 2; i++){
-            slotColors [i] = readSlotColor(i);
-        }
-        //check for each motif
-        //TODO fix this control logic, it won't work
-        /*if(currentMotif == motif.GPP){
-            if(slotColors[0] == color.GREEN){
-                order[0] = 0;
-            }
-            else if(slotColors[1] == color.GREEN){
-                order[0] = 1;
-            }
-            else if(slotColors[2] == color.GREEN){
-                order[0] = 2;
+        HashMap <color,Integer> slotColors = new HashMap();
 
+        slotColors.put(readSlotColor(0), 0);
+        slotColors.put(readSlotColor(1), 1);
+        slotColors.put(readSlotColor(2), 2);
+       //check if the sorter contains the wanted color
+            if(slotColors.containsKey(givenFirstBall)) {
+                //check the hashmap for color
+                order[0] = slotColors.get(givenFirstBall);
+                //delete that color from the hasmap
+                slotColors.remove(order[0], givenFirstBall);
             }
+            //if the sorter doesn't contain the wanted color then use opposite color ball
+            else if(slotColors.containsKey(oppositeBall(givenFirstBall))){
+                //check the hashmap for color
+                order[0] = slotColors.get(oppositeBall(givenFirstBall));
+                //delete that color from the hasmap
+                slotColors.remove(order[0], oppositeBall(givenFirstBall));
+            }
+            //second ball
+            if(slotColors.containsKey(givenSecondBall)) {
+                order[1] = slotColors.get(givenSecondBall);
+                slotColors.remove(order[1], givenSecondBall);
+            }
+            //if the sorter doesn't contain the wanted color then use opposite color ball
+            else if(slotColors.containsKey(oppositeBall(givenSecondBall))) {
+                order[1] = slotColors.get(oppositeBall(givenSecondBall));
+                slotColors.remove(order[1], oppositeBall(givenSecondBall));
+            }
+            //add safe for if color is undetected
             else{
-                order[0] = 2;
+                order[1] = Integer.parseInt(null);
             }
-            if(slotColors[0] == color.PURPLE){
-                order[1] = 0;
+            //last ball
+            if(slotColors.containsKey(givenThirdBall)) {
+                order[1] = slotColors.get(givenThirdBall);
+                slotColors.remove(order[1], givenSecondBall);
             }
-            else if(slotColors[1] == color.PURPLE){
-                order[1] = 1;
+            //if the sorter doesn't contain the wanted color then use opposite color ball
+            else if(slotColors.containsKey(oppositeBall(givenSecondBall))) {
+                order[1] = slotColors.get(oppositeBall(givenThirdBall));
+                slotColors.remove(order[1], oppositeBall(givenThirdBall));
             }
-            else if(slotColors[2] == color.PURPLE){
-                order[1] = 2;
-
-            }
+            //add safe for if color is undetected
             else{
-                order[1] = 2;
+                order[1] = Integer.parseInt(null);
             }
-            //purple again
-            if(slotColors[0] == color.PURPLE){
-                order[1] = 0;
-            }
-            else if(slotColors[1] == color.PURPLE){
-                order[1] = 1;
-            }
-            else if(slotColors[2] == color.PURPLE){
-                order[1] = 2;
-
-            }
-            else{
-                order[1] = 2;
-            }
-        }
-        else if(currentMotif == motif.PGP){
-            if(slotColors[0] == color.PURPLE){
-                order[0] = 0;
-            }
-            else if(slotColors[1] == color.PURPLE){
-                order[0] = 1;
-            }
-            else if(slotColors[2] == color.PURPLE){
-                order[0] = 2;
-
-            }
-            else{
-                order[0] = 2;
-            }
-            if(slotColors[0] == color.GREEN){
-                order[1] = 0;
-            }
-            else if(slotColors[1] == color.GREEN){
-                order[1] = 1;
-            }
-            else if(slotColors[2] == color.GREEN){
-                order[1] = 2;
-
-            }
-            else{
-                order[1] = 2;
-            }
-            if(slotColors[0] == color.PURPLE){
-                order[1] = 0;
-            }
-            else if(slotColors[1] == color.PURPLE){
-                order[1] = 1;
-            }
-            else if(slotColors[2] == color.PURPLE){
-                order[1] = 2;
-
-            }
-            else{
-                order[1] = 2;
-            }
-        }
-        else if(currentMotif == motif.PPG){
-            if(slotColors[0] == color.PURPLE){
-                order[0] = 0;
-            }
-            else if(slotColors[1] == color.PURPLE){
-                order[0] = 1;
-            }
-            else if(slotColors[2] == color.PURPLE){
-                order[0] = 2;
-
-            }
-            else{
-                order[0] = 2;
-            }
-            if(slotColors[0] == color.PURPLE){
-                order[1] = 0;
-            }
-            else if(slotColors[1] == color.PURPLE){
-                order[1] = 1;
-            }
-            else if(slotColors[2] == color.PURPLE){
-                order[1] = 2;
-
-            }
-            else{
-                order[1] = 2;
-            }
-            if(slotColors[0] == color.GREEN){
-                order[1] = 0;
-            }
-            else if(slotColors[1] == color.GREEN){
-                order[1] = 1;
-            }
-            else if(slotColors[2] == color.GREEN){
-                order[1] = 2;
-
-            }
-            else{
-                order[1] = 2;
-            }
-
-        }
-
-
-         */
-        if(currentMotif == motif.GPP){
-        }
+            //return oder in slot #'s with int []
         return order;
+    }
+    private color oppositeBall(color currentBall){
+        if(currentBall == GREEN){
+            return PURPLE;
+        }
+        else if(currentBall == PURPLE){
+            return GREEN;
+        }
+        else{
+            return UNDECTED;
+        }
+
     }
 }

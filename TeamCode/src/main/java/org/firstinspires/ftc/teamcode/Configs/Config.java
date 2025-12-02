@@ -59,10 +59,17 @@ public class Config {
     public final String sl1 = "slot1";
 
     public final String sl2 = "slot2";
+    //if the ratio of the gears is 40:30 the servo needs to be 270degress of rotation
 
     public final double slot0ServoPosition = 0.33;
     public final double slot1ServoPosition = 0.67;
     public final double slot2ServoPosition = 1.0;
+
+    //turret
+    //Todo fill out
+    public final int teethOnTurret = 180;
+    public final int teethOnMotorPulley = 15;
+    public final double ticksPerRevTurretMotor = 28;
 
 
 }
