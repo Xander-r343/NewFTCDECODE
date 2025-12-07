@@ -113,14 +113,10 @@ public class LatestTeleOp extends OpMode {
         //auto aim
         if(gamepad1.a) {
             aimbots.update();
-            if(aimbots.LLstatusIsValid()){
-                targetH = pods.getHeading()-aimbots.getHeadingErrorLL();
-                //pods.holdHeading(targetH,1);
-            }
-            else {
+
                 targetH = aimbots.getIdealAngle();
                 //pods.holdHeading(targetH, 1);
-            }
+
             vel = robotSubsystem.flywheelGetRpmFromTable((int)aimbots.calculateSideLengthUsingPods());
             pods.holdHeading(targetH,1);
         }
