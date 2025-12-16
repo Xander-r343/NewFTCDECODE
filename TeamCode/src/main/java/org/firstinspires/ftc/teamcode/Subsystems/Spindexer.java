@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Configs.Config;
 import org.firstinspires.ftc.teamcode.Retired.SpindexerState;
@@ -20,6 +21,8 @@ import java.util.HashMap;
 public class Spindexer {
     private Servo starboardServo;
     private Servo portServo;
+    private Servo firingServo;
+
     private ColorSensor slot0;
     private ColorSensor slot1;
     private ColorSensor slot2;
@@ -50,6 +53,7 @@ public class Spindexer {
         slot1.enableLed(true);
         slot2.enableLed(true);
         spindexerState = new SpindexerState();
+        firingServo = hardwareMap.get(Servo.class, config.firingServoName);
     }
     /**
      * spins the spindexer to a slot
@@ -202,4 +206,21 @@ public class Spindexer {
         }
 
     }
+
+    /**
+     * fires a ball
+     * @param givenTimeInMilliseconds is the time in between fire and reload
+     */
+    public void FireBall(long givenTimeInMilliseconds){
+        ElapsedTime timer = new ElapsedTime();
+        timer.startTime();
+        firingServo.setPosition(config.firingServoFirePose);
+        while(timer.milliseconds() < givenTimeInMilliseconds+11){
+            if(timer.milliseconds() > givenTimeInMilliseconds){
+                firingServo.setPosition(config.firingServoReloadPose);
+            }
+
+        }
+    }
+
 }

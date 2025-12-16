@@ -23,6 +23,7 @@ public class Turret {
     private Limelight3A limelight;
     private LLResult result;
     Aimbots aimbots;
+    boolean aimContinuously;
     public Turret(@NonNull HardwareMap hardwareMap, int alliance, Aimbots givenAimbots){
         //initalize turret servos and motor
         config = new Config();
@@ -55,6 +56,7 @@ public class Turret {
         }
         //aiming:
         aimbots = givenAimbots;
+        aimContinuously = false;
     }
     /**
      * sets the turret to be a specific angle
@@ -83,7 +85,7 @@ public class Turret {
         return aimbots.pods.getHeading() - (turretRotater.getTargetPosition()/config.ticksPerDegree);
     }
     public void turretSetIdealAngleUsingLLandPods(){
-        updateSensors();
+        updateSystem();
         if(result.isValid()){
             setTurretPositionDegrees(getTurretPositionDegrees() - result.getTx(),1);
         }
@@ -91,9 +93,15 @@ public class Turret {
             setTurretPositionDegrees(aimbots.getIdealAngle(),1);
         }
     }
-    public void updateSensors(){
+    public void continuouslyAim(boolean trueOrFalse){
+        aimContinuously = trueOrFalse;
+    }
+    public void updateSystem(){
         result = limelight.getLatestResult();
         aimbots.update();
+        if(aimContinuously){
+            turretSetIdealAngleUsingLLandPods();
+        }
     }
     /**
      * sets the hood to a specific launch angle

@@ -53,6 +53,11 @@ public class Config {
     public final double Red = 0.277;
 
     //pindexer
+    public final String firingServoName = "firingServo";
+    public final double firingServoFirePose = 1;
+    public final double firingServoReloadPose = 0;
+
+
     public final String stbSv = "starboardServo";
     public final String ptSv = "portServo";
     public final String sl0 = "slot0";
