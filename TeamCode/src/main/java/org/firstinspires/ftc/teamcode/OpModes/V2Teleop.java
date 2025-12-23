@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 @TeleOp
-
+@com.acmerobotics.dashboard.config.Config
 public class V2Teleop extends OpMode {
     Servo rbgIndicator;
     public Gamepad currentGamepad1 = new Gamepad();
@@ -31,6 +31,9 @@ public class V2Teleop extends OpMode {
     double targetH;
     boolean continousAim;
     int hoodAngle;
+    int i;
+    public static double turretPose;
+
     @Override
     public void init() {
         config = new Config();
@@ -47,6 +50,7 @@ public class V2Teleop extends OpMode {
         //flywheelActive = false;
         //continousAim = false;
         pods.setPosition(72, 9, 0);
+         i = 0;
     }
 
     @Override
@@ -62,14 +66,15 @@ public class V2Teleop extends OpMode {
         //turret aiming controller 2
 
         if(currentGamepad1.dpad_left && !previousGamepad1.dpad_left){
-            hoodAngle -=5;
+            turretPose -=15;
         }
         else if(currentGamepad1.dpad_right && !previousGamepad1.dpad_right){
-            hoodAngle +=5;
+            turretPose +=15;
         }
-        if(gamepad1.a){
+        if(currentGamepad1.a && !previousGamepad1.a){
             turret.turretSetIdealAngleUsingLLandPods();
         }
+        turret.setTurretPositionDegrees(turretPose,1);
         turret.setHoodLaunchAngle(hoodAngle);
         turret.setFlywheelToRPM(vel);
         turret.updateSystem();
@@ -80,6 +85,8 @@ public class V2Teleop extends OpMode {
         telemetry.addData("x", aimbots.pods.getX());
         telemetry.addData("y", aimbots.pods.getY());
         telemetry.addData("dist", aimbots.calculateSideLengthUsingPods());
+        telemetry.addData("turret?", turret.getWantedAngle());
+
         telemetry.update();
 
 

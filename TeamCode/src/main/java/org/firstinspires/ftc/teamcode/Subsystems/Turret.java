@@ -24,6 +24,7 @@ public class Turret {
     private LLResult result;
     Aimbots aimbots;
     boolean aimContinuously;
+    double targetH;
     public Turret(@NonNull HardwareMap hardwareMap, int alliance, Aimbots givenAimbots){
         //initalize turret servos and motor
         config = new Config();
@@ -57,6 +58,9 @@ public class Turret {
         //aiming:
         aimbots = givenAimbots;
         aimContinuously = false;
+        targetH = 0;
+
+
     }
     /**
      * sets the turret to be a specific angle
@@ -85,18 +89,23 @@ public class Turret {
     public double getTurretPositionDegrees(){
         return aimbots.pods.getHeading() + ((turretRotater.getCurrentPosition()/config.ticksPerDegree));
     }
+
     public void turretSetIdealAngleUsingLLandPods(){
         updateSystem();
-        double targetH;
         if(result.isValid()){
-            targetH = getTurretPositionDegrees() - result.getTx();
+            targetH = getWantedAngle();
         }
-        else{
+        /*else{
             //aims the wrong way
             targetH = (aimbots.pods.getHeading()+aimbots.getIdealAngle());
-        }
-        setTurretPositionDegrees(targetH,0.5);
+        }*/
+        setTurretPositionDegrees((int)targetH,1);
     }
+    public double getWantedAngle(){
+        return getTurretPositionDegrees() - result.getTx();
+
+    }
+
     public void continuouslyAim(boolean trueOrFalse){
         aimContinuously = trueOrFalse;
     }
