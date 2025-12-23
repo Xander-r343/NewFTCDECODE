@@ -78,7 +78,7 @@ public class Aimbots {
             toReturn = Math.toDegrees(Math.acos(((CVertX - AvertX) / calculateSideLengthUsingPods()))) - 150;
         }*/
 
-        return Math.toDegrees(Math.acos(((CVertX - AvertX) / calculateSideLengthUsingPods()))) -90;
+        return (Math.toDegrees(Math.acos(((CVertX - AvertX) / calculateSideLengthUsingPods()))) -90);
 
     }
 

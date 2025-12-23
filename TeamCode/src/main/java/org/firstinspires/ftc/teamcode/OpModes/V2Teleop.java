@@ -43,7 +43,7 @@ public class V2Teleop extends OpMode {
         //initialize the robotSubsystem class
         //robotSubsystem = new ShooterSubsystem(hardwareMap);
         vel = 0;
-        hoodAngle = 30;
+        hoodAngle = 0;
         //flywheelActive = false;
         //continousAim = false;
         pods.setPosition(72, 9, 0);
@@ -60,17 +60,22 @@ public class V2Teleop extends OpMode {
         drivetrain.drive(-gamepad1.left_stick_y*1, 1*gamepad1.left_stick_x, gamepad1.right_stick_x*0.8);
 
         //turret aiming controller 2
-
+        if(currentGamepad1.dpad_down && !previousGamepad1.dpad_down){
+            turret.setTurretPositionDegrees(turret.getTurretPositionDegrees()- 5,1);
+        }
+        else if(currentGamepad1.dpad_up && !previousGamepad1.dpad_up){
+            turret.setTurretPositionDegrees(turret.getTurretPositionDegrees()+ 5,1);
+        }
         if(currentGamepad1.dpad_left && !previousGamepad1.dpad_left){
-            hoodAngle -=5;
+            hoodAngle -=0.05;
         }
         else if(currentGamepad1.dpad_right && !previousGamepad1.dpad_right){
-            hoodAngle +=5;
+            hoodAngle +=0.05;
         }
         if(gamepad1.a){
             turret.turretSetIdealAngleUsingLLandPods();
         }
-        turret.setHoodLaunchAngle(hoodAngle);
+        turret.setServoPoseManaul(1);
         turret.setFlywheelToRPM(vel);
         turret.updateSystem();
         telemetry.addData("turret pose", turret.getTurretPositionDegrees());

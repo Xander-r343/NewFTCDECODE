@@ -86,16 +86,6 @@ public class Turret {
         return aimbots.pods.getHeading() + ((turretRotater.getCurrentPosition()/config.ticksPerDegree));
     }
     public void turretSetIdealAngleUsingLLandPods(){
-        updateSystem();
-        double targetH;
-        if(result.isValid()){
-            targetH = getTurretPositionDegrees() - result.getTx();
-        }
-        else{
-            //aims the wrong way
-            targetH = (aimbots.pods.getHeading()+aimbots.getIdealAngle());
-        }
-        setTurretPositionDegrees(targetH,0.5);
     }
     public void continuouslyAim(boolean trueOrFalse){
         aimContinuously = trueOrFalse;
@@ -116,6 +106,10 @@ public class Turret {
         double givenPosition = givenLaunchAngle/config.hoodMaximumLaunchAngle;
         rightHoodServo.setPosition(givenPosition);
         leftHoodServo.setPosition(1-givenPosition);
+    }
+    public void setServoPoseManaul(double pose){
+        rightHoodServo.setPosition(pose);
+        leftHoodServo.setPosition(pose);
     }
     /**
      *
