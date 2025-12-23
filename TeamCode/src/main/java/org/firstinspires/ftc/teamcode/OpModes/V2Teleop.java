@@ -37,9 +37,9 @@ public class V2Teleop extends OpMode {
         //initialize subsystems
         drivetrain = new MecanumDrivetrain(1, hardwareMap);
         pods = new OdoPods(hardwareMap, drivetrain);
-        aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
+        aimbots = new Aimbots(config.BlueAlliance, pods, hardwareMap);
         //rbgIndicator = hardwareMap.get(Servo.class, config.RBGName);
-        turret = new Turret(hardwareMap, config.RedAlliance, aimbots);
+        turret = new Turret(hardwareMap, config.BlueAlliance, aimbots);
         //initialize the robotSubsystem class
         //robotSubsystem = new ShooterSubsystem(hardwareMap);
         vel = 0;
@@ -77,6 +77,9 @@ public class V2Teleop extends OpMode {
         telemetry.addData("rpm", turret.getRpm());
         telemetry.addData("ideal", turret.getTx());
         telemetry.addData("heading", aimbots.pods.getHeading());
+        telemetry.addData("x", aimbots.pods.getX());
+        telemetry.addData("y", aimbots.pods.getY());
+        telemetry.addData("dist", aimbots.calculateSideLengthUsingPods());
         telemetry.update();
 
 

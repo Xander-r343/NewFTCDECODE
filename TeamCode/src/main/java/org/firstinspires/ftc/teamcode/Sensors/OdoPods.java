@@ -59,10 +59,12 @@ public class OdoPods {
 
         //Initialize pinpoint
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-        pinpoint.setOffsets(0,165);
+        pinpoint.setOffsets(0,90);
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
         pinpoint.recalibrateIMU();
+
+
 
         // Initialize PDFL controllers with initial constants (these should be tuned(use values from summercamp code))
         headingController = new PDFL(kph, kdh, kfh, klh);

@@ -87,12 +87,15 @@ public class Turret {
     }
     public void turretSetIdealAngleUsingLLandPods(){
         updateSystem();
+        double targetH;
         if(result.isValid()){
-            setTurretPositionDegrees(getTurretPositionDegrees() - result.getTx(),0.5);
+            targetH = getTurretPositionDegrees() - result.getTx();
         }
         else{
-            setTurretPositionDegrees(aimbots.getIdealAngle()-aimbots.pods.getHeading() ,1);
+            //aims the wrong way
+            targetH = (aimbots.pods.getHeading()+aimbots.getIdealAngle());
         }
+        setTurretPositionDegrees(targetH,0.5);
     }
     public void continuouslyAim(boolean trueOrFalse){
         aimContinuously = trueOrFalse;
