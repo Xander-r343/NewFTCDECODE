@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Configs.Config;
 import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 
@@ -24,7 +25,8 @@ public class Turret {
     private LLResult result;
     Aimbots aimbots;
     boolean aimContinuously;
-    public Turret(@NonNull HardwareMap hardwareMap, int alliance, Aimbots givenAimbots){
+    Telemetry telemetry;
+    public Turret(@NonNull HardwareMap hardwareMap, int alliance, Aimbots givenAimbots, Telemetry tel){
         //initalize turret servos and motor
         config = new Config();
         leftHoodServo = hardwareMap.get(Servo.class, config.leftHoodServo);
@@ -57,6 +59,7 @@ public class Turret {
         //aiming:
         aimbots = givenAimbots;
         aimContinuously = false;
+        telemetry = tel;
     }
     /**
      * sets the turret to be a specific angle
@@ -76,8 +79,10 @@ public class Turret {
             targetPose = -180;
         }
         //this line sets the turret to aim based on field position rather than aiming off of the robot
-        turretRotater.setTargetPosition((int)(aimbots.pods.getHeading()) + ((int)(targetPose*config.ticksPerDegree)));
+        turretRotater.setTargetPosition((int) Math.round((aimbots.pods.getHeading()* config.ticksPerDegree) + (targetPose*config.ticksPerDegree)));
         //sets the motor to runnnn
+        telemetry.update();
+        telemetry.addData("e", turretRotater.getTargetPosition());
         turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //sets power to given power
         turretRotater.setPower(power);
@@ -86,6 +91,7 @@ public class Turret {
         return aimbots.pods.getHeading() + ((turretRotater.getCurrentPosition()/config.ticksPerDegree));
     }
     public void turretSetIdealAngleUsingLLandPods(){
+        setTurretPositionDegrees(aimbots.getIdealAngle(),1);
     }
     public void continuouslyAim(boolean trueOrFalse){
         aimContinuously = trueOrFalse;

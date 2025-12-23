@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Configs.Config;
 import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 import org.firstinspires.ftc.teamcode.Subsystems.Aimbots;
@@ -39,7 +40,7 @@ public class V2Teleop extends OpMode {
         pods = new OdoPods(hardwareMap, drivetrain);
         aimbots = new Aimbots(config.BlueAlliance, pods, hardwareMap);
         //rbgIndicator = hardwareMap.get(Servo.class, config.RBGName);
-        turret = new Turret(hardwareMap, config.BlueAlliance, aimbots);
+        turret = new Turret(hardwareMap, config.BlueAlliance, aimbots, telemetry);
         //initialize the robotSubsystem class
         //robotSubsystem = new ShooterSubsystem(hardwareMap);
         vel = 0;
