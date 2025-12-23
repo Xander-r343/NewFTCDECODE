@@ -79,16 +79,16 @@ public class Config {
     public final String turretRotationName = "turretRotater";
     public final String leftHoodServo = "leftHood";
     public final String rightHoodServo = "rightHood";
-    public final double hoodMinimumLaunchAngle = 30;
+    public final double hoodMinimumLaunchAngle = 20;
     public final double hoodMaximumLaunchAngle = 70;
     public final int HoodservoRange = 120;//degrees
 
     public final int teethOnTurretGear = 100;
     public final int teethOnMotorGear = 15;
-    public final double ticksPerRevTurretMotor = 145.1;
-    public final double turretTicksLowerLimit = -483.5;
-    public final double turretTicksUpperLimit = 483.5;
-    public final double ticksPerDegree = 967.33333/360;
+    public final double ticksPerRevTurretMotor = 360;
+    public final double turretTicksLowerLimit = -346;
+    public final double turretTicksUpperLimit = 346;
+    public final double ticksPerDegree = 3584.6/360;
 
 
     //flywheel names

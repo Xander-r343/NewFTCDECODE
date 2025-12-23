@@ -63,6 +63,7 @@ public class Turret {
      * @param degrees the wanted angle from the perspective of the field
      * @param power the power to move turret at
      */
+
     public void setTurretPositionDegrees(double degrees, double power){
         int targetPose;
         if(degrees <=180 && degrees >= -180) {
@@ -75,22 +76,22 @@ public class Turret {
             targetPose = -180;
         }
         //this line sets the turret to aim based on field position rather than aiming off of the robot
-        turretRotater.setTargetPosition((int)(aimbots.pods.getHeading()) - (int)(targetPose*config.ticksPerDegree));
+        turretRotater.setTargetPosition((int)(aimbots.pods.getHeading()) + ((int)(targetPose*config.ticksPerDegree)));
         //sets the motor to runnnn
         turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //sets power to given power
         turretRotater.setPower(power);
     }
     public double getTurretPositionDegrees(){
-        return aimbots.pods.getHeading() - (turretRotater.getTargetPosition()/config.ticksPerDegree);
+        return aimbots.pods.getHeading() + ((turretRotater.getCurrentPosition()/config.ticksPerDegree));
     }
     public void turretSetIdealAngleUsingLLandPods(){
         updateSystem();
         if(result.isValid()){
-            setTurretPositionDegrees(getTurretPositionDegrees() - result.getTx(),1);
+            setTurretPositionDegrees(getTurretPositionDegrees() - result.getTx(),0.5);
         }
         else{
-            setTurretPositionDegrees(aimbots.getIdealAngle(),1);
+            setTurretPositionDegrees(aimbots.getIdealAngle()-aimbots.pods.getHeading() ,1);
         }
     }
     public void continuouslyAim(boolean trueOrFalse){
@@ -136,7 +137,12 @@ public class Turret {
             return false;
         }
     }
-
+    public double getRpm (){
+        return rightFlywheelMotor.getVelocity()/config.ticksPerRevFlywheel*60;
+    }
+    public double getTx(){
+        return result.getTx();
+    }
 
 
 

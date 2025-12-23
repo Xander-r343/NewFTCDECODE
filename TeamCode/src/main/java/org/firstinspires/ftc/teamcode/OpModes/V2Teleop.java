@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
+@TeleOp
 
 public class V2Teleop extends OpMode {
     Servo rbgIndicator;
@@ -20,7 +22,6 @@ public class V2Teleop extends OpMode {
     public Gamepad previousGamepad2 = new Gamepad();
     MecanumDrivetrain drivetrain;
     OdoPods pods;
-    ShooterSubsystem robotSubsystem;
     Config config;
     Aimbots aimbots;
     Turret turret;
@@ -28,23 +29,24 @@ public class V2Teleop extends OpMode {
     int vel;
     boolean flywheelActive;
     double targetH;
-    double LLheadingError;
-    double PodsIdealAngle;
     boolean continousAim;
+    int hoodAngle;
     @Override
     public void init() {
+        config = new Config();
         //initialize subsystems
         drivetrain = new MecanumDrivetrain(1, hardwareMap);
         pods = new OdoPods(hardwareMap, drivetrain);
-        aimbots = new Aimbots((int)blackboard.get(config.AllianceKey), pods, hardwareMap);
-        config = new Config();
-        rbgIndicator = hardwareMap.get(Servo.class, config.RBGName);
-        turret = new Turret(hardwareMap, (int)blackboard.get(config.AllianceKey), aimbots);
+        aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
+        //rbgIndicator = hardwareMap.get(Servo.class, config.RBGName);
+        turret = new Turret(hardwareMap, config.RedAlliance, aimbots);
         //initialize the robotSubsystem class
-        robotSubsystem = new ShooterSubsystem(hardwareMap);
-        vel = 3500;
-        flywheelActive = false;
-        continousAim = false;
+        //robotSubsystem = new ShooterSubsystem(hardwareMap);
+        vel = 0;
+        hoodAngle = 30;
+        //flywheelActive = false;
+        //continousAim = false;
+        pods.setPosition(72, 9, 0);
     }
 
     @Override
@@ -55,16 +57,27 @@ public class V2Teleop extends OpMode {
         previousGamepad2.copy(currentGamepad1);
         currentGamepad2.copy(gamepad1);
         //drivetrain driving
-        drivetrain.drive(gamepad1.left_stick_y*1, -1*gamepad1.left_stick_x, gamepad1.right_stick_x*0.8);
+        drivetrain.drive(-gamepad1.left_stick_y*1, 1*gamepad1.left_stick_x, gamepad1.right_stick_x*0.8);
+
         //turret aiming controller 2
-        if(currentGamepad2.a && !previousGamepad1.a){
-            if(continousAim == false) {
-                turret.continuouslyAim(true);
-            }
-            else{
-                turret.continuouslyAim(false);
-            }
+
+        if(currentGamepad1.dpad_left && !previousGamepad1.dpad_left){
+            hoodAngle -=5;
         }
+        else if(currentGamepad1.dpad_right && !previousGamepad1.dpad_right){
+            hoodAngle +=5;
+        }
+        if(gamepad1.a){
+            turret.turretSetIdealAngleUsingLLandPods();
+        }
+        turret.setHoodLaunchAngle(hoodAngle);
+        turret.setFlywheelToRPM(vel);
+        turret.updateSystem();
+        telemetry.addData("turret pose", turret.getTurretPositionDegrees());
+        telemetry.addData("rpm", turret.getRpm());
+        telemetry.addData("ideal", turret.getTx());
+        telemetry.addData("heading", aimbots.pods.getHeading());
+        telemetry.update();
 
 
 
