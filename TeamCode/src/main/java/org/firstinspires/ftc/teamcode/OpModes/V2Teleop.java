@@ -38,9 +38,9 @@ public class V2Teleop extends OpMode {
         //initialize subsystems
         drivetrain = new MecanumDrivetrain(1, hardwareMap);
         pods = new OdoPods(hardwareMap, drivetrain);
-        aimbots = new Aimbots(config.BlueAlliance, pods, hardwareMap);
+        aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
         //rbgIndicator = hardwareMap.get(Servo.class, config.RBGName);
-        turret = new Turret(hardwareMap, config.BlueAlliance, aimbots, telemetry);
+        turret = new Turret(hardwareMap, config.RedAlliance, aimbots, telemetry);
         //initialize the robotSubsystem class
         //robotSubsystem = new ShooterSubsystem(hardwareMap);
         vel = 0;
@@ -55,8 +55,8 @@ public class V2Teleop extends OpMode {
         //gamepad
         previousGamepad1.copy(currentGamepad1);
         currentGamepad1.copy(gamepad1);
-        previousGamepad2.copy(currentGamepad1);
-        currentGamepad2.copy(gamepad1);
+        previousGamepad2.copy(currentGamepad2);
+        currentGamepad2.copy(gamepad2);
         //drivetrain driving
         drivetrain.drive(-gamepad1.left_stick_y*1, 1*gamepad1.left_stick_x, gamepad1.right_stick_x*0.8);
 
@@ -68,13 +68,22 @@ public class V2Teleop extends OpMode {
             turret.setTurretPositionDegrees(turret.getTurretPositionDegrees()+ 5,1);
         }
         if(currentGamepad1.dpad_left && !previousGamepad1.dpad_left){
-            hoodAngle -=0.05;
+            hoodAngle -=5;
         }
         else if(currentGamepad1.dpad_right && !previousGamepad1.dpad_right){
-            hoodAngle +=0.05;
+            hoodAngle +=5;
         }
         if(gamepad1.a){
             turret.turretSetIdealAngleUsingLLandPods();
+        }
+        if(gamepad2.left_stick_y != 0){
+            turret.setIntakeSpeed(gamepad2.left_stick_y);
+        }
+        if(currentGamepad2.dpad_up& !previousGamepad2.dpad_up){
+            vel += 250;
+        }
+        if(currentGamepad2.dpad_down& !previousGamepad2.dpad_down){
+            vel -= 250;
         }
         turret.setServoPoseManaul(1);
         turret.setFlywheelToRPM(vel);

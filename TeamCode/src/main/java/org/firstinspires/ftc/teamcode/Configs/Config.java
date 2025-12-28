@@ -36,10 +36,10 @@ public class Config {
 
 
     //pathing values
-    public final double RedAllianceTargetX = 144;
-    public final double RedAllianceTargetY = 144;
-    public final double BlueAllianceTargetY = 144;
-    public final double BlueAllianceTargetX = 0;
+    public final double RedAllianceTargetX = 132;
+    public final double RedAllianceTargetY = 131;
+    public final double BlueAllianceTargetY = 131;
+    public final double BlueAllianceTargetX = 12;
 
     //blackboard keys
     public final String AllianceKey = "allianceKey";

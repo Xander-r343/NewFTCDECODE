@@ -79,7 +79,7 @@ public class Aimbots {
         }*/
 
 
-        return Math.toDegrees(Math.atan2(pods.getY() - targetY, pods.getX() - targetX));
+        return -Math.toDegrees(Math.atan2(AvertX - pods.getX(), AvertY - pods.getY()));
     }
 
     public double getDistanceUsingLL() {

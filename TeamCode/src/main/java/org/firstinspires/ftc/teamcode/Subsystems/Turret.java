@@ -21,6 +21,7 @@ public class Turret {
     private Servo rightHoodServo;
     private DcMotorEx leftFlywheelMotor;
     private DcMotorEx rightFlywheelMotor;
+    private DcMotor intake;
     private Limelight3A limelight;
     private LLResult result;
     Aimbots aimbots;
@@ -46,6 +47,8 @@ public class Turret {
         rightFlywheelMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFlywheelMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightFlywheelMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        //intake
+        intake = hardwareMap.get(DcMotor.class, config.IntakeMotorName);
         //initalize limelight
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.resetDeviceConfigurationForOpMode();
@@ -79,10 +82,10 @@ public class Turret {
             targetPose = -180;
         }
         //this line sets the turret to aim based on field position rather than aiming off of the robot
-        turretRotater.setTargetPosition((int) Math.round((aimbots.pods.getHeading()* config.ticksPerDegree) + (targetPose*config.ticksPerDegree)));
+        turretRotater.setTargetPosition(((int)Math.round((targetPose - aimbots.pods.getHeading()) *config.ticksPerDegree)));
         //sets the motor to runnnn
         telemetry.update();
-        telemetry.addData("e", turretRotater.getTargetPosition());
+        telemetry.addData("e", aimbots.getIdealAngle());
         turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //sets power to given power
         turretRotater.setPower(power);
@@ -145,6 +148,9 @@ public class Turret {
     }
     public double getTx(){
         return result.getTx();
+    }
+    public void setIntakeSpeed(double speed){
+        intake.setPower(speed);
     }
 
 
