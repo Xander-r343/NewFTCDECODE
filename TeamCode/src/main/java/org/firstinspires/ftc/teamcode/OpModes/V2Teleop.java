@@ -36,7 +36,8 @@ public class V2Teleop extends OpMode {
     double targetH;
     boolean continousAim;
     double hoodAngle;
-
+    boolean intakingMode;
+    boolean slot1;
 
     @Override
     public void init() {
@@ -55,6 +56,8 @@ public class V2Teleop extends OpMode {
         //continousAim = false;
         pods.setPosition(72, 9, 0);
         spindexer = new Spindexer(hardwareMap);
+        intakingMode = false;
+        slot1 = false;
     }
 
     @Override
@@ -77,6 +80,7 @@ public class V2Teleop extends OpMode {
         if(gamepad2.b){
             spindexer.FirePoseSlot0();
             turret.setIntakeSpeed(0);
+            intakingMode = false;
         }
         if(currentGamepad2.dpad_up && !previousGamepad2.dpad_up){
             if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0FIRE){
@@ -90,6 +94,7 @@ public class V2Teleop extends OpMode {
             }
         }
         if(gamepad2.a){
+            intakingMode = true;
             spindexer.PickupPoseSlot0();
             turret.setIntakeSpeed(0.75);
         }
@@ -102,6 +107,15 @@ public class V2Teleop extends OpMode {
             }
             else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT2PICKUP){
                 spindexer.PickupPoseSlot0();
+            }
+        }
+        if(intakingMode && spindexer.getBallColorImmediately() != Spindexer.color.UNDECTED){
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0PICKUP){
+                spindexer.PickupPoseSlot1();
+            }
+            else if(spindexer.getPosition() == config.slot1Pickup){
+                spindexer.PickupPoseSlot2();
+
             }
         }
         if(currentGamepad1.dpad_up && !previousGamepad1.dpad_up){
@@ -121,16 +135,20 @@ public class V2Teleop extends OpMode {
         }
         turret.setServoPoseManaul(hoodAngle);
         turret.setFlywheelToRPM(vel);
-       // turret.update();
+        turret.update();
+        telemetry.addData("current R", turret.getRightCurrent());
+        telemetry.addData("current L", turret.getLeftCurrent());
         telemetry.addData("servo pose", spindexer.getState());
         telemetry.addData("turret pose", turret.getTurretPositionDegrees());
         telemetry.addData("rpm", turret.getRpm());
+        telemetry.addData("targetrpm", vel);
         telemetry.addData("ideal", turret.getTx());
         telemetry.addData("heading", aimbots.pods.getHeading());
         telemetry.addData("x", aimbots.pods.getX());
         telemetry.addData("y", aimbots.pods.getY());
         telemetry.addData("dist", aimbots.calculateSideLengthUsingPods());
         telemetry.addData("hood", hoodAngle);
+        telemetry.addData("color", spindexer.getBallColorImmediately());
         telemetry.update();
 
 

@@ -11,14 +11,18 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Configs.Config;
 import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 
 import dev.nextftc.control.ControlSystem;
 import dev.nextftc.control.KineticState;
 import dev.nextftc.control.feedforward.BasicFeedforwardParameters;
-
+@com.acmerobotics.dashboard.config.Config
 public class Turret {
+    public static double kP = 0.00000553;
+    public static double kS = 0.059;
+    public static double kV = 0;
     private Config config;
     private DcMotorEx turretRotater;
     private Servo leftHoodServo;
@@ -44,18 +48,17 @@ public class Turret {
         turretRotater.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //initalize left motor
         leftFlywheelMotor = hardwareMap.get(DcMotorEx.class, config.newRobotLeftFlywheel);
-        leftFlywheelMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftFlywheelMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftFlywheelMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         leftFlywheelMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         //initalize right motor
         rightFlywheelMotor = hardwareMap.get(DcMotorEx.class, config.newRobotRightFlywheel);
-        rightFlywheelMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFlywheelMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFlywheelMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightFlywheelMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         //intake
         intake = hardwareMap.get(DcMotor.class, config.IntakeMotorName);
         //initalize limelight
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.resetDeviceConfigurationForOpMode();
         limelight.start();
@@ -70,10 +73,11 @@ public class Turret {
         aimContinuously = false;
         telemetry = tel;
         controlSystem = ControlSystem.builder()
-                .velPid(0.0033, 0.0, 0.0)
-                .basicFF(1.667E-4, 0.0, 0.003)
+                .velPid(kP, 0.0, 0.0)
+                .basicFF(kV, 0.0, kS)
         .build();
     }
+
     /**
      * sets the turret to be a specific angle
      * @param degrees the wanted angle from the perspective of the field
@@ -136,15 +140,15 @@ public class Turret {
      */
     public void setFlywheelToRPM(int rpm){
         controlSystem.setGoal(new KineticState(0.0, rpm*config.ticksPerRevFlywheel));
-
     }
     public void update(){
-        rightFlywheelMotor.setPower(
-                controlSystem.calculate(
-                        new KineticState(rightFlywheelMotor.getCurrentPosition(), rightFlywheelMotor.getVelocity())
-                )
-        );
+        double power;
+               power =  controlSystem.calculate(
+                        new KineticState(0, rightFlywheelMotor.getVelocity())
+                );
 
+        leftFlywheelMotor.setPower(power);
+        rightFlywheelMotor.setPower(power);
     }
     /**
      * returns a boolean telling whether the flywheel is at speed or not
@@ -163,10 +167,21 @@ public class Turret {
         return rightFlywheelMotor.getVelocity()/config.ticksPerRevFlywheel*60;
     }
     public double getTx(){
-        return result.getTx();
+        if(result != null) {
+            return result.getTx();
+        }
+        else{
+            return 0;
+        }
     }
     public void setIntakeSpeed(double speed){
         intake.setPower(speed);
+    }
+    public double getRightCurrent(){
+        return rightFlywheelMotor.getCurrent(CurrentUnit.MILLIAMPS);
+    }
+    public double getLeftCurrent(){
+        return leftFlywheelMotor.getCurrent(CurrentUnit.MILLIAMPS);
     }
 
 

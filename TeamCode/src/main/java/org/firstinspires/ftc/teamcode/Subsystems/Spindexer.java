@@ -7,12 +7,15 @@ import static org.firstinspires.ftc.teamcode.Subsystems.Spindexer.color.UNDECTED
 
 import androidx.annotation.NonNull;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Configs.Config;
 import org.firstinspires.ftc.teamcode.Retired.SpindexerState;
 
@@ -22,7 +25,7 @@ import java.util.HashMap;
 public class Spindexer {
     private Servo starboardServo;
     private Servo firingServo;
-    private ColorSensor slot0;
+    private RevColorSensorV3 slot0;
     private ColorSensor slot1;
     private ColorSensor slot2;
     public SpindexerState spindexerState;
@@ -46,10 +49,10 @@ public class Spindexer {
         starboardServo = hardwareMap.get(Servo.class, config.stbSv);
         starboardServo.resetDeviceConfigurationForOpMode();
         //initialize color sensors
-        slot0 = hardwareMap.get(ColorSensor.class, config.sl0);
+        slot0 = hardwareMap.get(RevColorSensorV3.class, config.sl0);
         slot1 = hardwareMap.get(ColorSensor.class, config.sl1);
         slot2 = hardwareMap.get(ColorSensor.class, config.sl2);
-        slot0.enableLed(true);
+        //slot0.enableLed(true);
         slot1.enableLed(true);
         slot2.enableLed(true);
         spindexerState = new SpindexerState();
@@ -247,5 +250,28 @@ public class Spindexer {
     }
     public SpindexerRotationalState getState(){
         return RealSpindexerState;
+    }
+    public color getBallColorImmediately(){
+            NormalizedRGBA c = slot0.getNormalizedColors();
+            double d = slot0.getDistance(DistanceUnit.MM);
+
+            if (d > 30.0) {
+                return color.UNDECTED;
+            }
+
+            // Prevents division by zero or negative alpha values
+            float alphaDivisor = Math.max(c.alpha, 1.0f);
+            float r = c.red / alphaDivisor;
+            float g = c.green / alphaDivisor;
+            float b = c.blue / alphaDivisor;
+
+            if ((g / r) > 2.0 && g > b) {
+                return color.GREEN;
+            } else if ((b / g) > 1.3 && b > r) {
+                return color.PURPLE;
+            }
+
+            return color.UNDECTED;
+
     }
 }
