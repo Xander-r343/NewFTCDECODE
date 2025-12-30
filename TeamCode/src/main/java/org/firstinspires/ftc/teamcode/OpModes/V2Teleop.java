@@ -45,6 +45,7 @@ public class V2Teleop extends OpMode {
         //initialize subsystems
         drivetrain = new MecanumDrivetrain(1, hardwareMap);
         pods = new OdoPods(hardwareMap, drivetrain);
+        pods.setPosition(72, 9, 0);
         aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
         //rbgIndicator = hardwareMap.get(Servo.class, config.RBGName);
         turret = new Turret(hardwareMap, config.RedAlliance, aimbots, telemetry);
@@ -54,7 +55,6 @@ public class V2Teleop extends OpMode {
         hoodAngle = 0.55;
         //flywheelActive = false;
         //continousAim = false;
-        pods.setPosition(72, 9, 0);
         spindexer = new Spindexer(hardwareMap);
         intakingMode = false;
         slot1 = false;
@@ -62,7 +62,9 @@ public class V2Teleop extends OpMode {
 
     @Override
     public void loop() {
-
+        if(gamepad1.left_stick_button){
+            pods.setPosition(72,9,0);
+        }
         //gamepad
         previousGamepad1.copy(currentGamepad1);
         currentGamepad1.copy(gamepad1);
@@ -133,6 +135,8 @@ public class V2Teleop extends OpMode {
         if(gamepad1.x){
             turret.turretSetIdealAngleUsingLLandPods();
         }
+        pods.update();
+        aimbots.update();
         turret.setServoPoseManaul(hoodAngle);
         turret.setFlywheelToRPM(vel);
         turret.update();
