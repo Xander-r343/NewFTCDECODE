@@ -66,20 +66,20 @@ public class Config {
     public final String sl2 = "slot2";
 
     //TODO if the ratio of the gears is 40:30 the servo needs to be 270degress of rotation
-    public final double slot0FiringPosition = 0;
-    public final double slot1FiringPosition = 0.4;
-    public final double slot2FiringPosition = 0.8;
+    public final double slot0FiringPosition = 0.725;
+    public final double slot1FiringPosition = 0;
+    public final double slot2FiringPosition = 0.35;
 
-    public final double slot0ServoPosition = 0.33;
-    public final double slot1ServoPosition = 0.67;
-    public final double slot2ServoPosition = 1.0;
+    public final double slot0Pickup = 0.15;
+    public final double slot1Pickup = 0.5;
+    public final double slot2Pickup = 0.9;
 
     //turret
     //Todo fill out
     public final String turretRotationName = "turretRotater";
     public final String leftHoodServo = "leftHood";
     public final String rightHoodServo = "rightHood";
-    public final double hoodMinimumLaunchAngle = 20;
+    public final double hoodMinimumLaunchAngle = 30;
     public final double hoodMaximumLaunchAngle = 70;
     public final int HoodservoRange = 120;//degrees
 

@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Configs.Config;
@@ -13,6 +15,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
+import org.opencv.features2d.MSER;
+
 @TeleOp
 
 public class V2Teleop extends OpMode {
@@ -31,7 +35,9 @@ public class V2Teleop extends OpMode {
     boolean flywheelActive;
     double targetH;
     boolean continousAim;
-    int hoodAngle;
+    double hoodAngle;
+
+
     @Override
     public void init() {
         config = new Config();
@@ -44,50 +50,79 @@ public class V2Teleop extends OpMode {
         //initialize the robotSubsystem class
         //robotSubsystem = new ShooterSubsystem(hardwareMap);
         vel = 0;
-        hoodAngle = 0;
+        hoodAngle = 0.55;
         //flywheelActive = false;
         //continousAim = false;
         pods.setPosition(72, 9, 0);
+        spindexer = new Spindexer(hardwareMap);
     }
 
     @Override
     public void loop() {
+
         //gamepad
         previousGamepad1.copy(currentGamepad1);
         currentGamepad1.copy(gamepad1);
         previousGamepad2.copy(currentGamepad2);
-        currentGamepad2.copy(gamepad2);
+         currentGamepad2.copy(gamepad2);
         //drivetrain driving
         drivetrain.drive(-gamepad1.left_stick_y*1, 1*gamepad1.left_stick_x, gamepad1.right_stick_x*0.8);
 
-        //turret aiming controller 2
-        if(currentGamepad1.dpad_down && !previousGamepad1.dpad_down){
-            turret.setTurretPositionDegrees(turret.getTurretPositionDegrees()- 5,1);
+        //fire ball, NOW WORKS WITH RESTRICTIONS
+        if(currentGamepad2.right_bumper && !previousGamepad2.right_bumper){
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT1FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT2FIRE){
+                spindexer.FireBall(200);
+            }
         }
-        else if(currentGamepad1.dpad_up && !previousGamepad1.dpad_up){
-            turret.setTurretPositionDegrees(turret.getTurretPositionDegrees()+ 5,1);
+        if(gamepad2.b){
+            spindexer.FirePoseSlot0();
+            turret.setIntakeSpeed(0);
         }
-        if(currentGamepad1.dpad_left && !previousGamepad1.dpad_left){
-            hoodAngle -=5;
+        if(currentGamepad2.dpad_up && !previousGamepad2.dpad_up){
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0FIRE){
+                spindexer.FirePoseSlot2();
+            }
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT1FIRE){
+                spindexer.FirePoseSlot0();
+            }
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT2FIRE){
+                spindexer.FirePoseSlot1();
+            }
         }
-        else if(currentGamepad1.dpad_right && !previousGamepad1.dpad_right){
-            hoodAngle +=5;
+        if(gamepad2.a){
+            spindexer.PickupPoseSlot0();
+            turret.setIntakeSpeed(0.75);
         }
-        if(gamepad1.a){
+        if(currentGamepad2.dpad_right && !previousGamepad2.dpad_right){
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0PICKUP){
+                spindexer.PickupPoseSlot1();
+            }
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT1PICKUP){
+                spindexer.PickupPoseSlot2();
+            }
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT2PICKUP){
+                spindexer.PickupPoseSlot0();
+            }
+        }
+        if(currentGamepad1.dpad_up && !previousGamepad1.dpad_up){
+            vel += 100;
+        }
+        else if(currentGamepad1.dpad_down && !previousGamepad1.dpad_down){
+            vel -= 100;
+        }
+        if(currentGamepad1.dpad_right && !previousGamepad1.dpad_right){
+            hoodAngle+= 0.025;
+        }
+        else if(currentGamepad1.dpad_left && !previousGamepad1.dpad_left){
+            hoodAngle -= 0.025;
+        }
+        if(gamepad1.x){
             turret.turretSetIdealAngleUsingLLandPods();
         }
-        if(gamepad2.left_stick_y != 0){
-            turret.setIntakeSpeed(gamepad2.left_stick_y);
-        }
-        if(currentGamepad2.dpad_up& !previousGamepad2.dpad_up){
-            vel += 250;
-        }
-        if(currentGamepad2.dpad_down& !previousGamepad2.dpad_down){
-            vel -= 250;
-        }
-        turret.setServoPoseManaul(1);
+        turret.setServoPoseManaul(hoodAngle);
         turret.setFlywheelToRPM(vel);
-        turret.updateSystem();
+       // turret.update();
+        telemetry.addData("servo pose", spindexer.getState());
         telemetry.addData("turret pose", turret.getTurretPositionDegrees());
         telemetry.addData("rpm", turret.getRpm());
         telemetry.addData("ideal", turret.getTx());
@@ -95,6 +130,7 @@ public class V2Teleop extends OpMode {
         telemetry.addData("x", aimbots.pods.getX());
         telemetry.addData("y", aimbots.pods.getY());
         telemetry.addData("dist", aimbots.calculateSideLengthUsingPods());
+        telemetry.addData("hood", hoodAngle);
         telemetry.update();
 
 

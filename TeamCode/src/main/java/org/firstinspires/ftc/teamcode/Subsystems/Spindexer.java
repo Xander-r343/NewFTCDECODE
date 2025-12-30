@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.Subsystems.Spindexer.color.UNDECTED
 
 import androidx.annotation.NonNull;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -20,13 +21,12 @@ import java.util.HashMap;
 
 public class Spindexer {
     private Servo starboardServo;
-    private Servo portServo;
     private Servo firingServo;
-
     private ColorSensor slot0;
     private ColorSensor slot1;
     private ColorSensor slot2;
     public SpindexerState spindexerState;
+    private SpindexerRotationalState RealSpindexerState;
     public enum color{
         PURPLE, GREEN, UNDECTED
     }
@@ -44,7 +44,7 @@ public class Spindexer {
         config = new Config();
         //initialize servos
         starboardServo = hardwareMap.get(Servo.class, config.stbSv);
-        portServo = hardwareMap.get(Servo.class, config.ptSv);
+        starboardServo.resetDeviceConfigurationForOpMode();
         //initialize color sensors
         slot0 = hardwareMap.get(ColorSensor.class, config.sl0);
         slot1 = hardwareMap.get(ColorSensor.class, config.sl1);
@@ -54,26 +54,13 @@ public class Spindexer {
         slot2.enableLed(true);
         spindexerState = new SpindexerState();
         firingServo = hardwareMap.get(Servo.class, config.firingServoName);
+
+        RealSpindexerState = SpindexerRotationalState.INIT;
     }
     /**
      * spins the spindexer to a slot
      * @param givenSlot is a number between 0-2 and is the wanted spindexer slot
      */
-    public void spinToPose(int givenSlot){
-        if(givenSlot == 0){
-            starboardServo.setPosition(config.slot0ServoPosition);
-            portServo.setPosition(1-config.slot0ServoPosition);
-        }
-        else if(givenSlot == 1){
-            starboardServo.setPosition(config.slot1ServoPosition);
-            portServo.setPosition(1-config.slot1ServoPosition);
-        }
-        else if(givenSlot == 2){
-            starboardServo.setPosition(config.slot2ServoPosition);
-            portServo.setPosition(1-config.slot2ServoPosition);
-        }
-
-    }
     /**
      * returns the color value
      * @param givenSlot specified slot to read
@@ -222,5 +209,43 @@ public class Spindexer {
 
         }
     }
-
+    public enum SpindexerRotationalState{
+        SLOT0PICKUP, SLOT1PICKUP, SLOT2PICKUP, SLOT0FIRE, SLOT1FIRE,SLOT2FIRE, INIT
+    }
+    public double getPosition(){
+        return starboardServo.getPosition();
+    }
+    public void setPosition(double pose){
+        starboardServo.setPosition(pose);
+    }
+    public void PickupPoseSlot0(){
+        starboardServo.setPosition(config.slot0Pickup);
+        setState(SpindexerRotationalState.SLOT0PICKUP);
+    }
+    public void PickupPoseSlot1(){
+        starboardServo.setPosition(config.slot1Pickup);
+        setState(SpindexerRotationalState.SLOT1PICKUP);
+    }
+    public void PickupPoseSlot2(){
+        starboardServo.setPosition(config.slot2Pickup);
+        setState(SpindexerRotationalState.SLOT2PICKUP);
+    }
+    public void FirePoseSlot0(){
+        starboardServo.setPosition(config.slot0FiringPosition);
+        setState(SpindexerRotationalState.SLOT0FIRE);
+    }
+    public void FirePoseSlot1(){
+        starboardServo.setPosition(config.slot1FiringPosition);
+        setState(SpindexerRotationalState.SLOT1FIRE);
+    }
+    public void FirePoseSlot2(){
+        starboardServo.setPosition(config.slot2FiringPosition);
+        setState(SpindexerRotationalState.SLOT2FIRE);
+    }
+    public void setState(SpindexerRotationalState givenState){
+        RealSpindexerState = givenState;
+    }
+    public SpindexerRotationalState getState(){
+        return RealSpindexerState;
+    }
 }

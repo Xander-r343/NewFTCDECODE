@@ -14,6 +14,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Configs.Config;
 import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 
+import dev.nextftc.control.ControlSystem;
+import dev.nextftc.control.KineticState;
+import dev.nextftc.control.feedforward.BasicFeedforwardParameters;
+
 public class Turret {
     private Config config;
     private DcMotorEx turretRotater;
@@ -27,6 +31,7 @@ public class Turret {
     Aimbots aimbots;
     boolean aimContinuously;
     Telemetry telemetry;
+    ControlSystem controlSystem;
     public Turret(@NonNull HardwareMap hardwareMap, int alliance, Aimbots givenAimbots, Telemetry tel){
         //initalize turret servos and motor
         config = new Config();
@@ -51,6 +56,7 @@ public class Turret {
         intake = hardwareMap.get(DcMotor.class, config.IntakeMotorName);
         //initalize limelight
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.resetDeviceConfigurationForOpMode();
         limelight.start();
         if(alliance == config.RedAlliance){
@@ -63,6 +69,10 @@ public class Turret {
         aimbots = givenAimbots;
         aimContinuously = false;
         telemetry = tel;
+        controlSystem = ControlSystem.builder()
+                .velPid(0.0033, 0.0, 0.0)
+                .basicFF(1.667E-4, 0.0, 0.003)
+        .build();
     }
     /**
      * sets the turret to be a specific angle
@@ -125,10 +135,16 @@ public class Turret {
      * @param rpm is the desiredRpm
      */
     public void setFlywheelToRPM(int rpm){
-        int ticksPerRotation = config.ticksPerRevFlywheel;
-        int calculatedVelocity = (rpm/60)*ticksPerRotation;
-        rightFlywheelMotor.setVelocity(calculatedVelocity);
-        leftFlywheelMotor.setVelocity(calculatedVelocity);
+        controlSystem.setGoal(new KineticState(0.0, rpm*config.ticksPerRevFlywheel));
+
+    }
+    public void update(){
+        rightFlywheelMotor.setPower(
+                controlSystem.calculate(
+                        new KineticState(rightFlywheelMotor.getCurrentPosition(), rightFlywheelMotor.getVelocity())
+                )
+        );
+
     }
     /**
      * returns a boolean telling whether the flywheel is at speed or not
@@ -152,6 +168,7 @@ public class Turret {
     public void setIntakeSpeed(double speed){
         intake.setPower(speed);
     }
+
 
 
 
