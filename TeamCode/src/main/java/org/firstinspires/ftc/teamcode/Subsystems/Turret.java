@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 import androidx.annotation.NonNull;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,12 +16,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Configs.Config;
 import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 
+
 import dev.nextftc.control.ControlSystem;
 import dev.nextftc.control.KineticState;
 import dev.nextftc.control.feedforward.BasicFeedforwardParameters;
 @com.acmerobotics.dashboard.config.Config
 public class Turret {
-    public static double kP = 0.0000025;
+    public static double kP = 0.0000050;
     public static double kS = 0.059;
     public static double kV = 0;
     private Config config;
@@ -60,7 +62,6 @@ public class Turret {
         intake = hardwareMap.get(DcMotor.class, config.IntakeMotorName);
         //initalize limelight
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.resetDeviceConfigurationForOpMode();
         limelight.start();
         if(alliance == config.RedAlliance){
             limelight.pipelineSwitch(0);
@@ -139,7 +140,8 @@ public class Turret {
      * @param rpm is the desiredRpm
      */
     public void setFlywheelToRPM(int rpm){
-        controlSystem.setGoal(new KineticState(0.0, rpm*config.ticksPerRevFlywheel));
+        controlSystem.setGoal(new KineticState(0.0, (rpm*config.ticksPerRevFlywheel)));
+
     }
     public void setFlywheelToTPS(int tps){
         controlSystem.setGoal(new KineticState(0.0, tps*60));
@@ -186,7 +188,9 @@ public class Turret {
     public double getLeftCurrent(){
         return leftFlywheelMotor.getCurrent(CurrentUnit.MILLIAMPS);
     }
-
+    public int getMotif(){
+        return 0;
+    }
 
 
 

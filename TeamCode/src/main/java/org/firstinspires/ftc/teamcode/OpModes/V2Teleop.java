@@ -39,6 +39,8 @@ public class V2Teleop extends OpMode {
     double hoodAngle;
     boolean intakingMode;
     boolean slot1;
+    ElapsedTime timer;
+    boolean ballIsFiring;
 
     @Override
     public void init() {
@@ -59,6 +61,7 @@ public class V2Teleop extends OpMode {
         spindexer = new Spindexer(hardwareMap);
         intakingMode = false;
         slot1 = false;
+        timer = new ElapsedTime();
     }
     @Override
     public void loop() {
@@ -100,7 +103,7 @@ public class V2Teleop extends OpMode {
         if(gamepad2.a){
             intakingMode = true;
             spindexer.PickupPoseSlot0();
-            turret.setIntakeSpeed(0.75);
+            turret.setIntakeSpeed(1);
         }
         if(currentGamepad2.dpad_right && !previousGamepad2.dpad_right){
             if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0PICKUP){
@@ -115,11 +118,22 @@ public class V2Teleop extends OpMode {
         }
         if(intakingMode && spindexer.getBallColorImmediately() != Spindexer.color.UNDECTED){
             if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0PICKUP){
+                timer.reset();
                 spindexer.PickupPoseSlot1();
             }
-            else if(spindexer.getPosition() == config.slot1Pickup){
+            else if(spindexer.getPosition() == config.slot1Pickup && timer.seconds() > 0.3){
                 spindexer.PickupPoseSlot2();
+                timer.reset();
             }
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT2PICKUP && timer.seconds() > 0.3){
+                spindexer.FirePoseSlot0();
+                turret.setIntakeSpeed(0);
+                intakingMode = false;
+            }
+        }
+        if(gamepad2.x){
+            fire3Ball();
+
         }
         if(currentGamepad1.dpad_up && !previousGamepad1.dpad_up){
             vel += 100;
@@ -133,16 +147,25 @@ public class V2Teleop extends OpMode {
         else if(currentGamepad1.dpad_left && !previousGamepad1.dpad_left){
             hoodAngle -= 0.025;
         }
-        if(gamepad1.x){
+        if(gamepad2.left_bumper){
             turret.turretSetIdealAngleUsingLLandPods();
+        }
+        if(gamepad1.y&& flywheelActive){
+            flywheelActive = false;
+        }else if(gamepad1.y && !flywheelActive){
+            flywheelActive = true;
         }
         pods.update();
         aimbots.update();
         turret.setServoPoseManaul(hoodAngle);
-        turret.setFlywheelToTPS(vel);
+        if(flywheelActive) {
+            turret.setFlywheelToRPM(3300);
+        }
+
+
         turret.update();
         telemetry.addData("rpm", turret.getRpm());
-        telemetry.addData("targetrpm", vel);
+        telemetry.addData("target rpm", vel);
         telemetry.addData("ideal", turret.getTx());
         telemetry.addData("heading", aimbots.pods.getHeading());
         telemetry.addData("x", aimbots.pods.getX());
@@ -150,11 +173,17 @@ public class V2Teleop extends OpMode {
         telemetry.addData("dist", aimbots.calculateSideLengthUsingPods());
         telemetry.addData("hood", hoodAngle);
         telemetry.addData("color", spindexer.getBallColorImmediately());
-        telemetry.addData("tps", values[1]);
+        telemetry.addData("rpm", values[1]);
         telemetry.update();
 
 
 
+
+
+    }
+    public void fire3Ball(){
+        ElapsedTime timer2 = new ElapsedTime();
+        int firingState = 0;
 
 
     }

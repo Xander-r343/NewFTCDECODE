@@ -30,6 +30,7 @@ public class Spindexer {
     private ColorSensor slot2;
     public SpindexerState spindexerState;
     private SpindexerRotationalState RealSpindexerState;
+    private FlickerServoState flickerServoState;
     public enum color{
         PURPLE, GREEN, UNDECTED
     }
@@ -57,8 +58,8 @@ public class Spindexer {
         slot2.enableLed(true);
         spindexerState = new SpindexerState();
         firingServo = hardwareMap.get(Servo.class, config.firingServoName);
-
         RealSpindexerState = SpindexerRotationalState.INIT;
+        flickerServoState = FlickerServoState.INIT;
     }
     /**
      * spins the spindexer to a slot
@@ -196,7 +197,17 @@ public class Spindexer {
         }
 
     }
-
+    public enum FlickerServoState{
+        FIRE,RELOAD,INIT
+    }
+    private void fire(){
+        firingServo.setPosition(config.firingServoFirePose);
+        flickerServoState = FlickerServoState.FIRE;
+    }
+    private void reload(){
+        firingServo.setPosition(config.firingServoReloadPose);
+        flickerServoState = FlickerServoState.RELOAD;
+    }
     /**
      * fires a ball
      * @param givenTimeInMilliseconds is the time in between fire and reload
@@ -204,13 +215,16 @@ public class Spindexer {
     public void FireBall(long givenTimeInMilliseconds){
         ElapsedTime timer = new ElapsedTime();
         timer.startTime();
-        firingServo.setPosition(config.firingServoFirePose);
+        fire();
         while(timer.milliseconds() < givenTimeInMilliseconds+11){
             if(timer.milliseconds() > givenTimeInMilliseconds){
-                firingServo.setPosition(config.firingServoReloadPose);
+                reload();
             }
 
         }
+    }
+    public FlickerServoState getFlickerState(){
+        return flickerServoState;
     }
     public enum SpindexerRotationalState{
         SLOT0PICKUP, SLOT1PICKUP, SLOT2PICKUP, SLOT0FIRE, SLOT1FIRE,SLOT2FIRE, INIT
@@ -273,5 +287,8 @@ public class Spindexer {
 
             return color.UNDECTED;
 
+    }
+    public double getFlickerServoPose(){
+        return firingServo.getPosition();
     }
 }
