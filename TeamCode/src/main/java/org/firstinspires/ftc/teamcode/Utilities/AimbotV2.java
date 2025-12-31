@@ -1,7 +1,9 @@
+package org.firstinspires.ftc.teamcode.Utilities;
+
 /**
  * Auto-generated Aimbot lookup table using regression.
  */
-public class Aimbot {
+public class AimbotV2 {
     public static final double[][] points = {
         { 0.600, 1306.874 },
         { 0.600, 1307.528 },
@@ -1077,5 +1079,5 @@ public class Aimbot {
         return lerp(t, points[low], points[high]);
     }
 
-    private Aimbot() {}
+    private AimbotV2() {}
 }

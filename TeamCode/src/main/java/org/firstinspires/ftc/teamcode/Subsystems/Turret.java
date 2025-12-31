@@ -20,7 +20,7 @@ import dev.nextftc.control.KineticState;
 import dev.nextftc.control.feedforward.BasicFeedforwardParameters;
 @com.acmerobotics.dashboard.config.Config
 public class Turret {
-    public static double kP = 0.00000553;
+    public static double kP = 0.0000025;
     public static double kS = 0.059;
     public static double kV = 0;
     private Config config;
@@ -140,6 +140,9 @@ public class Turret {
      */
     public void setFlywheelToRPM(int rpm){
         controlSystem.setGoal(new KineticState(0.0, rpm*config.ticksPerRevFlywheel));
+    }
+    public void setFlywheelToTPS(int tps){
+        controlSystem.setGoal(new KineticState(0.0, tps*60));
     }
     public void update(){
         double power;

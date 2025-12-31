@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
+import org.firstinspires.ftc.teamcode.Utilities.AimbotV2;
 import org.opencv.features2d.MSER;
 
 @TeleOp
@@ -59,9 +60,10 @@ public class V2Teleop extends OpMode {
         intakingMode = false;
         slot1 = false;
     }
-
     @Override
     public void loop() {
+        final double [] values = AimbotV2.getValues(aimbots.calculateSideLengthUsingPods());
+
         if(gamepad1.left_stick_button){
             pods.setPosition(72,9,0);
         }
@@ -117,7 +119,6 @@ public class V2Teleop extends OpMode {
             }
             else if(spindexer.getPosition() == config.slot1Pickup){
                 spindexer.PickupPoseSlot2();
-
             }
         }
         if(currentGamepad1.dpad_up && !previousGamepad1.dpad_up){
@@ -138,12 +139,8 @@ public class V2Teleop extends OpMode {
         pods.update();
         aimbots.update();
         turret.setServoPoseManaul(hoodAngle);
-        turret.setFlywheelToRPM(vel);
+        turret.setFlywheelToTPS(vel);
         turret.update();
-        telemetry.addData("current R", turret.getRightCurrent());
-        telemetry.addData("current L", turret.getLeftCurrent());
-        telemetry.addData("servo pose", spindexer.getState());
-        telemetry.addData("turret pose", turret.getTurretPositionDegrees());
         telemetry.addData("rpm", turret.getRpm());
         telemetry.addData("targetrpm", vel);
         telemetry.addData("ideal", turret.getTx());
@@ -153,6 +150,7 @@ public class V2Teleop extends OpMode {
         telemetry.addData("dist", aimbots.calculateSideLengthUsingPods());
         telemetry.addData("hood", hoodAngle);
         telemetry.addData("color", spindexer.getBallColorImmediately());
+        telemetry.addData("tps", values[1]);
         telemetry.update();
 
 
