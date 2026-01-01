@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 
 import androidx.annotation.NonNull;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -19,12 +20,14 @@ import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 
 import dev.nextftc.control.ControlSystem;
 import dev.nextftc.control.KineticState;
+import dev.nextftc.control.feedback.PIDCoefficients;
 import dev.nextftc.control.feedforward.BasicFeedforwardParameters;
-@com.acmerobotics.dashboard.config.Config
-public class Turret {
-    public static double kP = 0.0000050;
-    public static double kS = 0.059;
-    public static double kV = 0;
+@Configurable
+public class    Turret {
+    public static PIDCoefficients pidC = new PIDCoefficients(0.0115, 0.0, 0.0);
+    public static BasicFeedforwardParameters ffCoefs = new BasicFeedforwardParameters(0.0001851, 0.0, 0.006);
+
+
     private Config config;
     private DcMotorEx turretRotater;
     private Servo leftHoodServo;
@@ -43,6 +46,8 @@ public class Turret {
         config = new Config();
         leftHoodServo = hardwareMap.get(Servo.class, config.leftHoodServo);
         rightHoodServo = hardwareMap.get(Servo.class, config.rightHoodServo);
+        leftHoodServo.resetDeviceConfigurationForOpMode();
+        leftHoodServo.resetDeviceConfigurationForOpMode();
         //set motor runMode
         turretRotater = hardwareMap.get(DcMotorEx.class, config.turretRotationName);
         turretRotater.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -74,8 +79,8 @@ public class Turret {
         aimContinuously = false;
         telemetry = tel;
         controlSystem = ControlSystem.builder()
-                .velPid(kP, 0.0, 0.0)
-                .basicFF(kV, 0.0, kS)
+                .velPid(pidC)
+                .basicFF(ffCoefs)
         .build();
     }
 
@@ -86,15 +91,15 @@ public class Turret {
      */
 
     public void setTurretPositionDegrees(double degrees, double power){
-        int targetPose;
+        int targetPose = 0;
         if(degrees <=180 && degrees >= -180) {
             targetPose = (int)degrees;
         }
-        else if(degrees > 180){
-            targetPose = 180;
+        else if(degrees < -135){
+            targetPose = -135;
         }
-        else{
-            targetPose = -180;
+        else if(degrees > 225){
+            targetPose = 225;
         }
         //this line sets the turret to aim based on field position rather than aiming off of the robot
         turretRotater.setTargetPosition(((int)Math.round((targetPose - aimbots.pods.getHeading()) *config.ticksPerDegree)));
@@ -140,13 +145,13 @@ public class Turret {
      * @param rpm is the desiredRpm
      */
     public void setFlywheelToRPM(int rpm){
-        controlSystem.setGoal(new KineticState(0.0, (rpm*config.ticksPerRevFlywheel)));
-
+        controlSystem.setGoal(new KineticState(0.0, ((rpm*28)/60)));
     }
     public void setFlywheelToTPS(int tps){
-        controlSystem.setGoal(new KineticState(0.0, tps*60));
+        controlSystem.setGoal(new KineticState(0.0, tps));
     }
     public void update(){
+
         double power;
                power =  controlSystem.calculate(
                         new KineticState(0, rightFlywheelMotor.getVelocity())
@@ -190,6 +195,9 @@ public class Turret {
     }
     public int getMotif(){
         return 0;
+    }
+    public double getHoodDouble(){
+        return rightHoodServo.getPosition();
     }
 
 

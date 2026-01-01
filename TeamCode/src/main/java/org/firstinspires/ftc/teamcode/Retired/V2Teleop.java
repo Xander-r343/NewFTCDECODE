@@ -1,24 +1,21 @@
-package org.firstinspires.ftc.teamcode.OpModes;
+package org.firstinspires.ftc.teamcode.Retired;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Configs.Config;
 import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 import org.firstinspires.ftc.teamcode.Subsystems.Aimbots;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 import org.firstinspires.ftc.teamcode.Utilities.AimbotV2;
-import org.opencv.features2d.MSER;
 
-@TeleOp
+@Disabled
 
 public class V2Teleop extends OpMode {
     Servo rbgIndicator;
@@ -67,9 +64,6 @@ public class V2Teleop extends OpMode {
     public void loop() {
         final double [] values = AimbotV2.getValues(aimbots.calculateSideLengthUsingPods());
 
-        if(gamepad1.left_stick_button){
-            pods.setPosition(72,9,0);
-        }
         //gamepad
         previousGamepad1.copy(currentGamepad1);
         currentGamepad1.copy(gamepad1);
@@ -77,13 +71,13 @@ public class V2Teleop extends OpMode {
          currentGamepad2.copy(gamepad2);
         //drivetrain driving
         drivetrain.drive(-gamepad1.left_stick_y*1, 1*gamepad1.left_stick_x, gamepad1.right_stick_x*0.8);
-
         //fire ball, NOW WORKS WITH RESTRICTIONS
         if(currentGamepad2.right_bumper && !previousGamepad2.right_bumper){
             if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT1FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT2FIRE){
-                spindexer.FireBall(200);
+                spindexer.FireBall(250  );
             }
         }
+
         if(gamepad2.b){
             spindexer.FirePoseSlot0();
             turret.setIntakeSpeed(0);
@@ -131,10 +125,6 @@ public class V2Teleop extends OpMode {
                 intakingMode = false;
             }
         }
-        if(gamepad2.x){
-            fire3Ball();
-
-        }
         if(currentGamepad1.dpad_up && !previousGamepad1.dpad_up){
             vel += 100;
         }
@@ -157,11 +147,11 @@ public class V2Teleop extends OpMode {
         }
         pods.update();
         aimbots.update();
-        turret.setServoPoseManaul(hoodAngle);
+        turret.setServoPoseManaul(values[0]);
         if(flywheelActive) {
-            turret.setFlywheelToRPM(3300);
-        }
 
+        }
+        turret.setFlywheelToRPM((int)values[1]);
 
         turret.update();
         telemetry.addData("rpm", turret.getRpm());
@@ -174,17 +164,9 @@ public class V2Teleop extends OpMode {
         telemetry.addData("hood", hoodAngle);
         telemetry.addData("color", spindexer.getBallColorImmediately());
         telemetry.addData("rpm", values[1]);
+        telemetry.addData("turret", turret.getTurretPositionDegrees());
         telemetry.update();
-
-
-
-
-
     }
-    public void fire3Ball(){
-        ElapsedTime timer2 = new ElapsedTime();
-        int firingState = 0;
 
 
-    }
 }

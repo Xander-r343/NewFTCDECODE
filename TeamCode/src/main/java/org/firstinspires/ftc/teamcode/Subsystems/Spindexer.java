@@ -60,6 +60,8 @@ public class Spindexer {
         firingServo = hardwareMap.get(Servo.class, config.firingServoName);
         RealSpindexerState = SpindexerRotationalState.INIT;
         flickerServoState = FlickerServoState.INIT;
+        firingServo.resetDeviceConfigurationForOpMode();
+        starboardServo.resetDeviceConfigurationForOpMode();
     }
     /**
      * spins the spindexer to a slot
@@ -291,4 +293,25 @@ public class Spindexer {
     public double getFlickerServoPose(){
         return firingServo.getPosition();
     }
+    public void rapidFire3(){
+        ElapsedTime timer =  new ElapsedTime();
+        timer.startTime();
+        FireBall(200);
+        while(timer.seconds() < 0.5){
+            if(firingServo.getPosition() == 0){
+                FirePoseSlot1();
+            }
+        }
+        if(timer.seconds() > 0.5) {
+            timer.reset();
+            while (timer.seconds() < 0.5) {
+                if (firingServo.getPosition() == 1) {
+                    FirePoseSlot2();
+                }
+            }
+        }
+        FireBall(200);
+
+    }
+
 }

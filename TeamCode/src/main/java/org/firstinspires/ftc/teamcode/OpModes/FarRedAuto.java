@@ -13,8 +13,9 @@ import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
+import org.firstinspires.ftc.teamcode.Utilities.AimbotV2;
 
-@Autonomous(name = "9 ball auto red")
+@Autonomous(name = "far zone red V1")
 public class FarRedAuto extends LinearOpMode {
 
     Servo rgb;
@@ -36,6 +37,7 @@ public class FarRedAuto extends LinearOpMode {
     int tagID;
     Turret turret;
     Spindexer spindexer;
+    double [] values;
 
 
     @Override
@@ -46,7 +48,7 @@ public class FarRedAuto extends LinearOpMode {
         config = new Config();//intialize blackboard objects
         AutoState = 0;
         //initialize odopods by using the config class
-        pods.setPosition(88, 9, 0);
+        pods.setPosition(88, 9, -90);
         timer = new ElapsedTime();
         AutoState = 0;
         aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
@@ -57,28 +59,25 @@ public class FarRedAuto extends LinearOpMode {
         timer.reset();
         blackboard.put(config.AllianceKey,config.RedAlliance);
         while (opModeIsActive()) {
+            values = AimbotV2.getValues(aimbots.calculateSideLengthUsingPods());
+
+            turret.setServoPoseManaul(values[0]);
+            turret.update();
+            turret.updateSystem();
             aimbots.update();
+            turret.turretSetIdealAngleUsingLLandPods();
             switch (AutoState) {
                 case 0: {
-                    telemetry.speak(String.valueOf(turret.getMotif()));
+                    turret.setFlywheelToRPM((int)values[1]);
+                    timer.startTime();
+                    spindexer.FirePoseSlot0();
                 }
                 break;
 
-
         }
-
-        aimbots.update();
-        telemetry.addData("x", pods.getX());
-        telemetry.addData("y", pods.getY());
-        telemetry.addData("h", pods.getHeading());
-        telemetry.addData("I see apriltag: ", aimbots.LLstatusIsValid());
-        telemetry.update();
     }
 
     }
-
-
-
 
 
     public void resetArtifacts(){
