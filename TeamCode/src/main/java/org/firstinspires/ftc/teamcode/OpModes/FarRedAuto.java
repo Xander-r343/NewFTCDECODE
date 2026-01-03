@@ -53,9 +53,8 @@ public class FarRedAuto extends LinearOpMode {
         AutoState = 0;
         aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
         turret = new Turret(hardwareMap, config.RedAlliance, aimbots,telemetry);
-        spindexer = new Spindexer(hardwareMap);
+        spindexer = new Spindexer(hardwareMap, runtime);
         spindexer.reloadFlickerServo();
-        spindexer.FirePoseSlot0();
         waitForStart();
         runtime.reset();
         timer.reset();
@@ -117,9 +116,8 @@ public class FarRedAuto extends LinearOpMode {
 
     }
     public void fire3(){
-        spindexer.FirePoseSlot0();
         while(timer.seconds() < 2){
-            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0FIRE && timer.seconds() > 1.2){
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE && timer.seconds() > 1.2){
                 spindexer.fireFlickerServo();
             }
             turret.setFlywheelToRPM((int)values[1] - 300);
@@ -133,9 +131,8 @@ public class FarRedAuto extends LinearOpMode {
             turret.update();
         }
         timer.reset();
-        spindexer.FirePoseSlot1();
         while(timer.seconds() < 1){
-            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT1FIRE && timer.seconds() > 0.5){
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && timer.seconds() > 0.5){
                 spindexer.fireFlickerServo();
             }
             turret.setFlywheelToRPM((int)values[1] - 300);
@@ -149,9 +146,8 @@ public class FarRedAuto extends LinearOpMode {
             turret.update();
         }
         timer.reset();
-        spindexer.FirePoseSlot2();
         while(timer.seconds() < 1){
-            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT2FIRE && timer.seconds() > 0.5){
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE && timer.seconds() > 0.5){
                 spindexer.fireFlickerServo();
             }
             turret.setFlywheelToRPM((int)values[1] - 300);
