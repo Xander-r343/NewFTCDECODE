@@ -28,7 +28,7 @@ public class TeleOp_V2_1 extends OpMode {
     Turret turret;
     Spindexer spindexer;
     int vel;
-
+    ElapsedTime runtimer;
     double hoodAngle;
     ElapsedTime firingTimer;
     boolean manualFlywheel = false;
@@ -66,7 +66,9 @@ public class TeleOp_V2_1 extends OpMode {
         hoodAngle = 0.55;
         //flywheelActive = false;
         //continousAim = false;
-        spindexer = new Spindexer(hardwareMap);
+        runtimer = new ElapsedTime();
+        runtimer.startTime();
+        spindexer = new Spindexer(hardwareMap, runtimer);
         firingTimer = new ElapsedTime();
         timer = new ElapsedTime();
         currentState = ShooterState.IDLE;
@@ -81,37 +83,43 @@ public class TeleOp_V2_1 extends OpMode {
         currentGamepad1.copy(gamepad1);
         previousGamepad2.copy(currentGamepad2);
         currentGamepad2.copy(gamepad2);
-        //spindexer controls FIRING:
-        //forward
+
+        //spindexer controls for FIRING:
+        //attack (avdacnce)
         if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right) {
             if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0FIRE) {
                 spindexer.FirePoseSlot1();
             } else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT1FIRE) {
                 spindexer.FirePoseSlot2();
-            } else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT2FIRE) {
-                spindexer.FirePoseSlot0();
+            }
+            else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT2FIRE) {
+                //reach the end
+                //spindexer.FirePoseSlot0();
             }
         }
-        //advance
+        //retreat
         if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left) {
             if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0FIRE) {
-                spindexer.FirePoseSlot2();
+                //reached the end
+                //spindexer.FirePoseSlot2();
             } else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT1FIRE) {
                 spindexer.FirePoseSlot0();
             } else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT2FIRE) {
                 spindexer.FirePoseSlot1();
             }
         }
-        //pose 0
+
+        //goto slot 0 firing position
         if (currentGamepad2.dpad_up && !previousGamepad2.dpad_up) {
             spindexer.FirePoseSlot0();
         }
-        //pose 2
+        //goto slot 2 firing position
         if (currentGamepad2.dpad_down && !previousGamepad2.dpad_down) {
             spindexer.FirePoseSlot2();
         }
-        //fire ball controls
-        if (currentGamepad2.left_bumper && previousGamepad2.left_bumper && !isFlicking) {
+        //fire ball controls (flicking servo)
+        //fire a single ball and rotate to the next slot afterwards
+        if (currentGamepad2.left_bumper && previousGamepad2.left_bumper && !isFlicking && (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT1FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT2FIRE)) {
             isFlicking = true;
             firingTimer.startTime();
             firingTimer.reset();
@@ -215,7 +223,7 @@ public class TeleOp_V2_1 extends OpMode {
         telemetry.addData("heading", aimbots.pods.getHeading());
         telemetry.addData("x", aimbots.pods.getX());
         telemetry.addData("y", aimbots.pods.getY());
-        turret.setFlywheelToRPM(1000);
+        turret.setFlywheelToRPM((int)(values[1]*0.91));
         turret.setHoodLaunchAngle(values[0] + 0.1);
         turret.turretSetIdealAngleUsingLLandPods();
         telemetry.update();

@@ -1,14 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 
-import static org.firstinspires.ftc.teamcode.Subsystems.Spindexer.color.GREEN;
-import static org.firstinspires.ftc.teamcode.Subsystems.Spindexer.color.PURPLE;
-import static org.firstinspires.ftc.teamcode.Subsystems.Spindexer.color.UNDECTED;
-
-import androidx.annotation.NonNull;
-
 import com.qualcomm.hardware.rev.RevColorSensorV3;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
@@ -17,24 +10,34 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Configs.Config;
-import org.firstinspires.ftc.teamcode.Retired.SpindexerState;
-
-import java.util.Arrays;
-import java.util.HashMap;
 
 public class Spindexer {
-    private Servo starboardServo;
+    public ElapsedTime runtime;
+    private Servo spindexerServo;
     private Servo firingServo;
     private RevColorSensorV3 slot0;
     private ColorSensor slot1;
     private ColorSensor slot2;
-    public SpindexerState spindexerState;
-    private SpindexerRotationalState RealSpindexerState;
+    private SpindexerRotationalState previousSpindexerState;
+    private SpindexerRotationalState currentSpindexerState;
     private FlickerServoState flickerServoState;
     public enum color{
         PURPLE, GREEN, UNDECTED
     }
+    public enum SpindexerRotationalState{
+        SLOT0PICKUP, MOVING_TO_SLOT_0_PICKUP,
+        SLOT1PICKUP, MOVING_TO_SLOT_1_PICKUP,
+        SLOT2PICKUP, MOVING_TO_SLOT_2_PICKUP,
+        SLOT0FIRE,MOVING_TO_SLOT_0_FIRE,
+        SLOT1FIRE,MOVING_TO_SLOT_1_FIRE,
+        SLOT2FIRE,MOVING_TO_SLOT_2_FIRE, INIT
+    }
+    public enum FlickerServoState{
+        FIRE,MOVING,RELOAD,INIT
+    }
     Config config;
+    public double TimestampSpindexer;
+    public double TimestampFlicker;
     ///          |
     ///          |
     ///       1  o    2
@@ -44,31 +47,57 @@ public class Spindexer {
     ///      intake side
     ///        firing side
 
-    public Spindexer(HardwareMap hardwareMap){
+    public Spindexer(HardwareMap hardwareMap, ElapsedTime Givenruntime){
         config = new Config();
         //initialize servos
-        starboardServo = hardwareMap.get(Servo.class, config.stbSv);
-        starboardServo.resetDeviceConfigurationForOpMode();
+        spindexerServo = hardwareMap.get(Servo.class, config.stbSv);
+        spindexerServo.resetDeviceConfigurationForOpMode();
         //initialize color sensors
         slot0 = hardwareMap.get(RevColorSensorV3.class, config.sl0);
-        slot1 = hardwareMap.get(ColorSensor.class, config.sl1);
-        slot2 = hardwareMap.get(ColorSensor.class, config.sl2);
         //slot0.enableLed(true);
         slot1.enableLed(true);
-        slot2.enableLed(true);
-        spindexerState = new SpindexerState();
         firingServo = hardwareMap.get(Servo.class, config.firingServoName);
-        RealSpindexerState = SpindexerRotationalState.INIT;
+        currentSpindexerState = SpindexerRotationalState.INIT;
+        previousSpindexerState = SpindexerRotationalState.INIT;
         flickerServoState = FlickerServoState.INIT;
         firingServo.resetDeviceConfigurationForOpMode();
-        starboardServo.resetDeviceConfigurationForOpMode();
+        spindexerServo.resetDeviceConfigurationForOpMode();
+        TimestampSpindexer = 0;
+        TimestampFlicker = 0;
+        runtime = Givenruntime;
+    }
+    public void update(){
+        if(currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_0_FIRE ||currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_1_FIRE ||
+                currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_2_FIRE || currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_0_PICKUP ||
+                currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_1_PICKUP || currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_2_PICKUP
+        ){
+            //if the time to run to pos is less than the time since start,
+            if(runtime.seconds() < TimestampSpindexer){
+                previousSpindexerState = currentSpindexerState;
+                if(currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_0_FIRE){
+                    currentSpindexerState = SpindexerRotationalState.SLOT0FIRE;
+                }
+                else if(currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_1_FIRE){
+                    currentSpindexerState = SpindexerRotationalState.SLOT1FIRE;
+                }
+                else if(currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_2_FIRE){
+                    currentSpindexerState = SpindexerRotationalState.SLOT2FIRE;
+                }
+                if(currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_0_PICKUP){
+                    currentSpindexerState = SpindexerRotationalState.SLOT0PICKUP;
+                }
+                else if(currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_1_PICKUP){
+                    currentSpindexerState = SpindexerRotationalState.SLOT1PICKUP;
+                }
+                else if(currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_2_PICKUP){
+                    currentSpindexerState = SpindexerRotationalState.SLOT2PICKUP;
+                }
+            }
+        }
     }
 
 
 
-    public enum FlickerServoState{
-        FIRE,RELOAD,INIT
-    }
     public  void fireFlickerServo(){
         firingServo.setPosition(config.firingServoFirePose);
         flickerServoState = FlickerServoState.FIRE;
@@ -77,48 +106,64 @@ public class Spindexer {
         firingServo.setPosition(config.firingServoReloadPose);
         flickerServoState = FlickerServoState.RELOAD;
     }
-
     public FlickerServoState getFlickerState(){
         return flickerServoState;
     }
-    public enum SpindexerRotationalState{
-        SLOT0PICKUP, SLOT1PICKUP, SLOT2PICKUP, SLOT0FIRE, SLOT1FIRE,SLOT2FIRE, INIT
-    }
     public double getPosition(){
-        return starboardServo.getPosition();
+        return spindexerServo.getPosition();
     }
     public void setPosition(double pose){
-        starboardServo.setPosition(pose);
+        spindexerServo.setPosition(pose);
     }
     public void PickupPoseSlot0(){
-        starboardServo.setPosition(config.slot0Pickup);
-        setState(SpindexerRotationalState.SLOT0PICKUP);
+        TimestampSpindexer = runtime.seconds();
+        previousSpindexerState = currentSpindexerState;
+        spindexerServo.setPosition(config.slot0Pickup);
+        currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_0_PICKUP;
     }
     public void PickupPoseSlot1(){
-        starboardServo.setPosition(config.slot1Pickup);
-        setState(SpindexerRotationalState.SLOT1PICKUP);
+        TimestampSpindexer = runtime.seconds();
+        previousSpindexerState = currentSpindexerState;
+        spindexerServo.setPosition(config.slot1Pickup);
+        currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_1_PICKUP;
     }
     public void PickupPoseSlot2(){
-        starboardServo.setPosition(config.slot2Pickup);
-        setState(SpindexerRotationalState.SLOT2PICKUP);
+        TimestampSpindexer = runtime.seconds();
+        previousSpindexerState = currentSpindexerState;
+        spindexerServo.setPosition(config.slot2Pickup);
+        currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_2_PICKUP;
     }
     public void FirePoseSlot0(){
-        starboardServo.setPosition(config.slot0FiringPosition);
-        setState(SpindexerRotationalState.SLOT0FIRE);
+        TimestampSpindexer = runtime.seconds();
+        previousSpindexerState = currentSpindexerState;
+        spindexerServo.setPosition(config.slot0FiringPosition);
+        currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_0_FIRE;
     }
     public void FirePoseSlot1(){
-        starboardServo.setPosition(config.slot1FiringPosition);
-        setState(SpindexerRotationalState.SLOT1FIRE);
+        TimestampSpindexer = runtime.seconds();
+        previousSpindexerState = currentSpindexerState;
+        spindexerServo.setPosition(config.slot1FiringPosition);
+        currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_1_FIRE;
     }
     public void FirePoseSlot2(){
-        starboardServo.setPosition(config.slot2FiringPosition);
-        setState(SpindexerRotationalState.SLOT2FIRE);
+        TimestampSpindexer = runtime.seconds();
+        previousSpindexerState = currentSpindexerState;
+        spindexerServo.setPosition(config.slot2FiringPosition);
+        currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_2_FIRE;
     }
-    public void setState(SpindexerRotationalState givenState){
-        RealSpindexerState = givenState;
+
+    /**
+     * gets the number of seconds to get to the next position
+     * @return seconds assuming spindexer is not jammed
+     */
+    private double getETAtoNewPositionInSeconds(){
+        //first get the distance or number of slots we are traveling
+        double targetDegrees =  getDegreesFromEnum(currentSpindexerState);
+        double currentDegrees =  getDegreesFromEnum(previousSpindexerState);
+        return config.timePerDegInSeconds * Math.abs(targetDegrees-currentDegrees);
     }
     public SpindexerRotationalState getState(){
-        return RealSpindexerState;
+        return currentSpindexerState;
     }
     public color getBallColorImmediately(){
             NormalizedRGBA c = slot0.getNormalizedColors();
@@ -146,10 +191,30 @@ public class Spindexer {
     public double getFlickerServoPose(){
         return firingServo.getPosition();
     }
-    public void rapidFire3(){
-        ElapsedTime timer =  new ElapsedTime();
-        timer.startTime();
 
+    public double getDegreesFromEnum(SpindexerRotationalState givenState){
+        if(givenState == SpindexerRotationalState.SLOT0FIRE){
+            return config.slot0FiringPositionDegrees;
+        }
+        else if(givenState == SpindexerRotationalState.SLOT1FIRE){
+            return config.slot1FiringPositionDegrees;
+        }
+        else if(givenState == SpindexerRotationalState.SLOT2FIRE){
+            return config.slot2FiringPositionDegrees;
+        }
+        if(givenState == SpindexerRotationalState.SLOT0PICKUP){
+            return config.slot0PickupDegrees;
+        }
+        else if(givenState == SpindexerRotationalState.SLOT1PICKUP){
+            return config.slot1PickupDegrees;
+        }
+        else if(givenState == SpindexerRotationalState.SLOT2PICKUP){
+            return config.slot2PickupDegrees;
+        }
+        else{
+            return 0.0;
+        }
     }
+
 
 }

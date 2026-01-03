@@ -53,6 +53,12 @@ public class Config {
     public final double Red = 0.277;
 
     //pindexer
+    //time for axon spindexer with MAX mk2 to move 1 slot position
+    public final double timePerDegInSeconds = 0.3/120;
+    //flicker servo time same thing
+    public final double timeForFlickInSeconds = 0.4;
+
+
     public final String firingServoName = "firingServo";
     public final double firingServoFirePose = 1;
     public final double firingServoReloadPose = 0;
@@ -73,6 +79,13 @@ public class Config {
     public final double slot0Pickup = 0.15;
     public final double slot1Pickup = 0.5;
     public final double slot2Pickup = 0.9;
+    //degrees
+    public final double slot0FiringPositionDegrees = 257.375;
+    public final double slot1FiringPositionDegrees = 0.0;
+    public final double slot2FiringPositionDegrees = 124.25;
+    public final double slot0PickupDegrees = 53.25;
+    public final double slot1PickupDegrees = 177.5;
+    public final double slot2PickupDegrees = 319.5;
 
     //turret
     //Todo fill out
