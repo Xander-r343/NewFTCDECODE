@@ -119,13 +119,7 @@ public class    Turret {
     public void continuouslyAim(boolean trueOrFalse){
         aimContinuously = trueOrFalse;
     }
-    public void updateSystem(){
-        result = limelight.getLatestResult();
-        aimbots.update();
-        if(aimContinuously){
-            turretSetIdealAngleUsingLLandPods();
-        }
-    }
+
     /**
      * sets the hood to a specific launch angle
      * @param givenLaunchAngle is the desired launch angle
@@ -151,7 +145,11 @@ public class    Turret {
         controlSystem.setGoal(new KineticState(0.0, tps));
     }
     public void update(){
-
+        result = limelight.getLatestResult();
+        aimbots.update();
+        if(aimContinuously){
+            turretSetIdealAngleUsingLLandPods();
+        }
         double power;
                power =  controlSystem.calculate(
                         new KineticState(0, rightFlywheelMotor.getVelocity())

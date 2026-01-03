@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 import org.firstinspires.ftc.teamcode.Utilities.AimbotV2;
 
-@Disabled
+@TeleOp
 
 public class V2Teleop extends OpMode {
     Servo rbgIndicator;
@@ -74,7 +74,6 @@ public class V2Teleop extends OpMode {
         //fire ball, NOW WORKS WITH RESTRICTIONS
         if(currentGamepad2.right_bumper && !previousGamepad2.right_bumper){
             if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT0FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT1FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT2FIRE){
-                spindexer.FireBall(250  );
             }
         }
 
