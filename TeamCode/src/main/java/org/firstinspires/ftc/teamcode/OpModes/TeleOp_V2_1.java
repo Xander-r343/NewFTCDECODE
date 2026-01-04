@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 import org.firstinspires.ftc.teamcode.Utilities.AimbotV2;
 
-@TeleOp(name = "TeleOp V2.1.0")
+@TeleOp(name = "TeleOp V2.1.0", group = "teleop")
 public class TeleOp_V2_1 extends OpMode {
     Servo rbgIndicator;
     public Gamepad currentGamepad1 = new Gamepad();
@@ -35,20 +35,8 @@ public class TeleOp_V2_1 extends OpMode {
     ElapsedTime timer;
     boolean isFlicking;
     boolean autoSpindexIntake = true;
-    private enum ShooterState {
-        IDLE,
-        SLOT0_POSE,
-        SLOT0_FIRE_WAIT,
-        SLOT0_RELOAD_WAIT,
-        SLOT1_POSE,
-        SLOT1_FIRE_WAIT,
-        SLOT1_RELOAD_WAIT,
-        SLOT2_POSE,
-        SLOT2_FIRE_WAIT,
-        SLOT2_RELOAD_WAIT,
-        COMPLETE
-    }
-    private ShooterState currentState;
+    boolean justFired = false;
+
     double [] values;
     @Override
     public void init() {
@@ -56,7 +44,7 @@ public class TeleOp_V2_1 extends OpMode {
         //initialize subsystems
         drivetrain = new MecanumDrivetrain(1, hardwareMap);
         pods = new OdoPods(hardwareMap, drivetrain);
-        pods.setPosition(72, 9, 0);
+        pods.setPosition(72,9,0);
         aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
         //rbgIndicator = hardwareMap.get(Servo.class, config.RBGName);
         turret = new Turret(hardwareMap, config.RedAlliance, aimbots, telemetry);
@@ -71,8 +59,7 @@ public class TeleOp_V2_1 extends OpMode {
         spindexer = new Spindexer(hardwareMap, runtimer);
         firingTimer = new ElapsedTime();
         timer = new ElapsedTime();
-        currentState = ShooterState.IDLE;
-        //spindexer.PickupPoseSlot0();
+        spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
         spindexer.reloadFlickerServo();
     }
 
@@ -87,64 +74,71 @@ public class TeleOp_V2_1 extends OpMode {
         //spindexer controls for FIRING:
         //attack (avdacnce)
         if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right) {
-            if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE) {
-              //  spindexer.FirePoseSlot1();
-            } else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE) {
-               // spindexer.FirePoseSlot2();
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE)
+            {
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_FIRE);
             }
-            else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE) {
-                //reach the end
-                //spindexer.FirePoseSlot0();
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE)
+            {
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_FIRE);
             }
         }
         //retreat
         if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left) {
-            if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE) {
-                //reached the end
-                //spindexer.FirePoseSlot2();
-            } else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE) {
-              //  spindexer.FirePoseSlot0();
-            } else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE) {
-              //  spindexer.FirePoseSlot1();
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE)
+            {
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_FIRE);
+            }
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE)
+            {
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
             }
         }
 
         //goto slot 0 firing position
         if (currentGamepad2.dpad_up && !previousGamepad2.dpad_up) {
-          //  spindexer.FirePoseSlot0();
+            spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
         }
         //goto slot 2 firing position
         if (currentGamepad2.dpad_down && !previousGamepad2.dpad_down) {
-            //spindexer.FirePoseSlot2();
+            spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_FIRE);
         }
         //fire ball controls (flicking servo)
         //fire a single ball and rotate to the next slot afterwards
-        if (currentGamepad2.left_bumper && previousGamepad2.left_bumper && !isFlicking && (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE)) {
-            isFlicking = true;
-            firingTimer.startTime();
-            firingTimer.reset();
+        if (currentGamepad2.left_trigger > 0.8 && previousGamepad2.left_trigger < 0.8 && !isFlicking && (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE)) {
             spindexer.fireFlickerServo();
+            justFired = true;
+            firingTimer.reset();
         }
-        if (spindexer.getFlickerState() == Spindexer.FlickerServoState.FIRE && firingTimer.seconds() > 0.2 && isFlicking) {
-            spindexer.reloadFlickerServo();
-        }
-        if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOAD && firingTimer.seconds() > 0.4 && isFlicking){
-            if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE) {
-               // spindexer.FirePoseSlot1();
-            } else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE) {
-               // spindexer.FirePoseSlot2();
-            } else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE) {
-               // spindexer.FirePoseSlot0();
+        if(firingTimer.seconds() > 0.35 && justFired){
+
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE)
+            {
+                justFired = false;
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_FIRE);
             }
-            isFlicking = false;
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE && firingTimer.seconds() > 0.36)
+            {
+                justFired = false;
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_FIRE);
+            }
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && firingTimer.seconds() > 0.37){
+                justFired = false;
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
+            }
         }
         if(gamepad2.right_bumper){
-            autoSpindexIntake = false;
+            if(autoSpindexIntake) {
+                autoSpindexIntake = false;
+            }else{
+                autoSpindexIntake = true;
+            }
         }
 
 
         //spindexer controls INTAKE:
         //intake hold for on
+
         if(gamepad2.a){
             turret.setIntakeSpeed(0.8);
         }
@@ -154,51 +148,51 @@ public class TeleOp_V2_1 extends OpMode {
         if(autoSpindexIntake && spindexer.getBallColorImmediately() != Spindexer.color.UNDECTED){
             if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_PICKUP){
                 timer.reset();
-                //spindexer.PickupPoseSlot1();
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_PICKUP);
             }
-            else if(spindexer.getPosition() == config.slot1Pickup && timer.seconds() > 0.3){
-                //spindexer.PickupPoseSlot2();
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_PICKUP && timer.seconds() > 0.3){
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_PICKUP);
                 timer.reset();
             }
             else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_PICKUP && timer.seconds() > 0.3){
-                //spindexer.FirePoseSlot0();
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
                 turret.setIntakeSpeed(0);
             }
         }
         //set 0 pose
         if(currentGamepad2.y && !previousGamepad2.y){
-            //spindexer.PickupPoseSlot0();
+            spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
         }
         //advance
         if(currentGamepad2.x && !previousGamepad2.x){
             if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_PICKUP){
-                //spindexer.PickupPoseSlot1();
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_PICKUP);
             }
             else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_PICKUP){
-                //spindexer.PickupPoseSlot2();
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_PICKUP);
             }
             else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_PICKUP){
-                //spindexer.PickupPoseSlot0();
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
             }
 
         }
         //reverse
         if(currentGamepad2.b && !previousGamepad2.b){
             if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_PICKUP){
-                //spindexer.PickupPoseSlot2();
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_PICKUP);
             }
             else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_PICKUP){
-                //spindexer.PickupPoseSlot0();
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
             }
             else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_PICKUP){
-                //spindexer.PickupPoseSlot1();
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_PICKUP);
             }
 
         }
-        if (gamepad2.right_stick_x > 0.4){
+        if (currentGamepad2.right_stick_x > 0.8 && previousGamepad2.right_stick_x < 0.8 && gamepad2.right_stick_x > 0){
             turret.setTurretPositionDegrees(turret.getTurretPositionDegrees() + 5,1);
         }
-        if (gamepad2.right_stick_x < -0.4){
+        if (currentGamepad2.right_stick_x < -0.8 && previousGamepad2.right_stick_x > -0.8 && gamepad2.right_stick_x < 0){
             turret.setTurretPositionDegrees(turret.getTurretPositionDegrees() - 5,1);
         }
         if(currentGamepad2.right_stick_button && !previousGamepad2.right_stick_button){
@@ -209,13 +203,19 @@ public class TeleOp_V2_1 extends OpMode {
                 manualFlywheel = false;
             }
         }
-        if (gamepad2.right_stick_y > 0.4 && manualFlywheel){
-            vel += 1;
+        if (currentGamepad2.right_stick_y > 0.8 && previousGamepad2.right_stick_y < 0.8 && manualFlywheel && gamepad2.right_stick_y > 0){
+            vel -= 80;
         }
-        else if (gamepad2.right_stick_y < -0.4 && manualFlywheel){
-            vel -=1;
+        else if (currentGamepad2.right_stick_y < -0.8 && previousGamepad2.right_stick_y > -0.8 && manualFlywheel  && gamepad2.right_stick_y < 0){
+            vel +=80;
         }
-        drivetrain.drive(gamepad1.left_stick_y*1, 1*gamepad1.left_stick_x, gamepad1.right_stick_x*0.8);
+        if (currentGamepad2.left_stick_y > 0.8 && previousGamepad2.left_stick_y < 0.8   && gamepad2.left_stick_y > 0){
+            hoodAngle += 2.5;
+        }
+        if (currentGamepad2.left_stick_y < -0.8 && previousGamepad2.left_stick_y > -0.8 && gamepad2.left_stick_y < 0){
+            hoodAngle -=2.5;
+        }
+        drivetrain.drive(-gamepad1.left_stick_y*1, 1*gamepad1.left_stick_x, gamepad1.right_stick_x*0.8);
 
         //update
         values = AimbotV2.getValues(aimbots.calculateSideLengthUsingPods());
@@ -223,9 +223,16 @@ public class TeleOp_V2_1 extends OpMode {
         telemetry.addData("heading", aimbots.pods.getHeading());
         telemetry.addData("x", aimbots.pods.getX());
         telemetry.addData("y", aimbots.pods.getY());
-        turret.setFlywheelToRPM((int)(values[1]*0.91));
-        turret.setHoodLaunchAngle(values[0] + 0.1);
-        turret.turretSetIdealAngleUsingLLandPods();
+        telemetry.addData("spin", spindexer.getState());
+        telemetry.addData("flik", spindexer.getFlickerState());
+        if(!manualFlywheel) {
+            vel = (int)(values[1]*0.94);
+            hoodAngle = values[0] + 0.1;
+            turret.turretSetIdealAngleUsingLLandPods();
+        }
+        turret.setFlywheelToRPM(vel);
+        spindexer.updateState();
+        turret.setHoodLaunchAngle(hoodAngle);
         telemetry.update();
         aimbots.update();
         turret.update();

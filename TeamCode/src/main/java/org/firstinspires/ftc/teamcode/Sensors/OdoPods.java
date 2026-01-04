@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Sensors;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.Utilities.PDFL;
 import org.firstinspires.ftc.teamcode.Utilities.Vector2d;
-@Config
+@Configurable
 public class OdoPods {
     private GoBildaPinpointDriver pinpoint;
 
@@ -25,18 +26,18 @@ public class OdoPods {
     // Drivetrain reference for setting motor powers
     private MecanumDrivetrain drivetrain;
     public static double kph = -0.015;
-    public static double kdh = 0.5;
+    public static double kdh = -0.02;
     public static double kfh = -0.02;
-    public static double klh = -0.041;
+    public static double klh = 0;
 
-    public static double kpd = -0.027;
-    public static double kdd = 0;
-    public static double kfd = -0.04;
-    public static double kld = -0.05;
+    public static double kpd = 0.033;
+    public static double kdd = 0.08;
+    public static double kfd = 0.032;
+    public static double kld = 0;
 
-    public static double kps = -0.06;
-    public static double kds = 0.5;
-    public static double kfs = -0.03;
+    public static double kps = 0.059;
+    public static double kds = 0;
+    public static double kfs = -0.012;
     public static double kls = 0;
 
     /*public static double kph = -0.015;
@@ -59,7 +60,7 @@ public class OdoPods {
 
         //Initialize pinpoint
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-        pinpoint.setOffsets(0,90);
+        pinpoint.setOffsets(0,-190);
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
         pinpoint.recalibrateIMU();
@@ -187,7 +188,7 @@ public class OdoPods {
         goToPosition(x, y, h, currentX, currentY, currentHeading, speed);
 
         // Use a tighter tolerance for checking if the target is reached
-        double positionTolerance = 2;  // Adjust this as needed for your robot's precision
+        double positionTolerance = 3;  // Adjust this as needed for your robot's precision
         double headingTolerance = 3;    // Tolerance for heading in degrees
 
         boolean positionReached = Math.abs(currentX - x) < positionTolerance &&

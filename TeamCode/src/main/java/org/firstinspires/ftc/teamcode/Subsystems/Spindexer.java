@@ -21,6 +21,7 @@ public class Spindexer {
     private SpindexerRotationalState previousSpindexerState;
     private SpindexerRotationalState currentSpindexerState;
     private FlickerServoState flickerServoState;
+    private double eta;
     public enum color{
         PURPLE, GREEN, UNDECTED
     }
@@ -40,22 +41,22 @@ public class Spindexer {
         INIT
     }
     private double[] servoAngleLookupTable = {
-                0.0, //SLOT0PICKUP,
+                Config.slot0Pickup, //SLOT0PICKUP,
                 0.0, // MOVING_TO_SLOT_0_PICKUP,
-                0.0, //SLOT1PICKUP,
+                Config.slot1Pickup, //SLOT1PICKUP,
                 0.0, //MOVING_TO_SLOT_1_PICKUP,
-                0.0, //SLOT2PICKUP,
+                Config.slot2Pickup, //SLOT2PICKUP,
                 0.0, //MOVING_TO_SLOT_2_PICKUP,
-                0.0, //SLOT0FIRE,
+                Config.slot0FiringPosition, //SLOT0FIRE,
                 0.0, //MOVING_TO_SLOT_0_FIRE,
-                0.0, //SLOT1FIRE,
+                Config.slot1FiringPosition, //SLOT1FIRE,
                 0.0, //MOVING_TO_SLOT_1_FIRE,
-                0.0, //SLOT2FIRE,
+                Config.slot2FiringPosition, //SLOT2FIRE,
                 0.0, //MOVING_TO_SLOT_2_FIRE,
-                0.0 //INIT
+                0.5 //INIT
     };
     public enum FlickerServoState{
-        FIRE,MOVING,RELOAD,INIT
+        RELOADED, FIRING, RELOADING,INIT
     }
     Config config;
     public double TimestampSpindexer;
@@ -77,7 +78,6 @@ public class Spindexer {
         //initialize color sensors
         slot0 = hardwareMap.get(RevColorSensorV3.class, config.sl0);
         //slot0.enableLed(true);
-        slot1.enableLed(true);
         firingServo = hardwareMap.get(Servo.class, config.firingServoName);
         currentSpindexerState = SpindexerRotationalState.INIT;
         previousSpindexerState = SpindexerRotationalState.INIT;
@@ -105,10 +105,9 @@ public class Spindexer {
         {
             // If the elapsed time to reach position has been reached, update the state
             //if the time to run to pos is less than the time since start,
-            if(runtime.seconds() < TimestampSpindexer) // This is not the right calculation
+            if(runtime.seconds() > TimestampSpindexer + eta)
             {
                 previousSpindexerState = currentSpindexerState;
-                // NH - use this switch instead
                 switch (currentSpindexerState) {
                     case MOVING_TO_SLOT_0_FIRE:
                         currentSpindexerState = SpindexerRotationalState.SLOT_0_FIRE;
@@ -132,14 +131,22 @@ public class Spindexer {
 
             }
         }
+        if(runtime.seconds() > TimestampFlicker + config.timeForFlickInSeconds &&flickerServoState == FlickerServoState.FIRING){
+            reloadFlickerServo();
+        }
+        if(runtime.seconds() > TimestampFlicker + config.timeForFlickInSeconds &&flickerServoState == FlickerServoState.RELOADING){
+            flickerServoState = FlickerServoState.RELOADED;
+        }
     }
     public void fireFlickerServo(){
+        TimestampFlicker = runtime.seconds();
         firingServo.setPosition(config.firingServoFirePose);
-        flickerServoState = FlickerServoState.FIRE;
+        flickerServoState = FlickerServoState.FIRING;
     }
     public void reloadFlickerServo(){
+        TimestampFlicker = runtime.seconds();
         firingServo.setPosition(config.firingServoReloadPose);
-        flickerServoState = FlickerServoState.RELOAD;
+        flickerServoState = FlickerServoState.RELOADING;
     }
     public FlickerServoState getFlickerState(){
         return flickerServoState;
@@ -147,9 +154,7 @@ public class Spindexer {
     public double getPosition(){
         return spindexerServo.getPosition();
     }
-    public void setPosition(double pose){
-        spindexerServo.setPosition(pose);
-    }
+
 
     /**
      *
@@ -157,13 +162,19 @@ public class Spindexer {
      */
     public void moveSpindexerToPos(SpindexerRotationalState newPos)
     {
-        TimestampSpindexer = runtime.seconds(); // add in the offset. Maybe call getETAtoNewPositionInSeconds ??
+        TimestampSpindexer = runtime.seconds();
+        eta = getETAtoNewPositionInSeconds(newPos, currentSpindexerState);
+        // add in the offset. Maybe call getETAtoNewPositionInSeconds ??
         previousSpindexerState = currentSpindexerState;
         spindexerServo.setPosition(servoAngleLookupTable[newPos.ordinal()]);
         switch (newPos) // assign "moving" to the current state
         {
             case SLOT_0_FIRE: currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_0_FIRE; break;
             case SLOT_1_FIRE: currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_1_FIRE; break;
+            case SLOT_2_FIRE: currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_2_FIRE; break;
+            case SLOT_0_PICKUP: currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_0_PICKUP; break;
+            case SLOT_1_PICKUP: currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_1_PICKUP; break;
+            case SLOT_2_PICKUP: currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_2_PICKUP; break;
             // fill this out
         }
 
@@ -175,12 +186,12 @@ public class Spindexer {
      * gets the number of seconds to get to the next position
      * @return seconds assuming spindexer is not jammed
      */
-    private double getETAtoNewPositionInSeconds(){
+    private double getETAtoNewPositionInSeconds(SpindexerRotationalState currentState, SpindexerRotationalState target){
         //first get the distance or number of slots we are traveling
 
         // replace these with the table
-        return config.timePerDegInSeconds * Math.abs(servoAngleLookupTable[previousSpindexerState.ordinal()] -
-                                                     servoAngleLookupTable[currentSpindexerState.ordinal()]    );
+        return config.timePerDegInSeconds * Math.abs(servoAngleLookupTable[currentState.ordinal()] -
+                                                     servoAngleLookupTable[target.ordinal()]);
     }
     public SpindexerRotationalState getState(){
         return currentSpindexerState;
@@ -208,33 +219,8 @@ public class Spindexer {
             return color.UNDECTED;
 
     }
-    public double getFlickerServoPose(){
-        return firingServo.getPosition();
-    }
 
-    public double getDegreesFromEnum(SpindexerRotationalState givenState){
-        if(givenState == SpindexerRotationalState.SLOT_0_FIRE){
-            return config.slot0FiringPositionDegrees;
-        }
-        else if(givenState == SpindexerRotationalState.SLOT_1_FIRE){
-            return config.slot1FiringPositionDegrees;
-        }
-        else if(givenState == SpindexerRotationalState.SLOT_2_FIRE){
-            return config.slot2FiringPositionDegrees;
-        }
-        if(givenState == SpindexerRotationalState.SLOT_0_PICKUP){
-            return config.slot0PickupDegrees;
-        }
-        else if(givenState == SpindexerRotationalState.SLOT_1_PICKUP){
-            return config.slot1PickupDegrees;
-        }
-        else if(givenState == SpindexerRotationalState.SLOT_2_PICKUP){
-            return config.slot2PickupDegrees;
-        }
-        else{
-            return 0.0;
-        }
-    }
+
 
 
 }

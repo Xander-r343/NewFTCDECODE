@@ -152,7 +152,7 @@ public class    Turret {
         }
         double power;
                power =  controlSystem.calculate(
-                        new KineticState(0, leftFlywheelMotor.getVelocity())
+                        new KineticState(0, rightFlywheelMotor.getVelocity())
                 );
 
         leftFlywheelMotor.setPower(power);

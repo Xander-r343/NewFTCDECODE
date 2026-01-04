@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Configs.Config;
 import org.firstinspires.ftc.teamcode.Configs.RedAutoPaths;
+import org.firstinspires.ftc.teamcode.Retired.Auto;
 import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 import org.firstinspires.ftc.teamcode.Subsystems.Aimbots;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
@@ -38,6 +39,7 @@ public class FarRedAuto extends LinearOpMode {
     Turret turret;
     Spindexer spindexer;
     double [] values;
+    boolean stopAiming = false;
 
 
     @Override
@@ -55,6 +57,7 @@ public class FarRedAuto extends LinearOpMode {
         turret = new Turret(hardwareMap, config.RedAlliance, aimbots,telemetry);
         spindexer = new Spindexer(hardwareMap, runtime);
         spindexer.reloadFlickerServo();
+        spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
         waitForStart();
         runtime.reset();
         timer.reset();
@@ -62,113 +65,217 @@ public class FarRedAuto extends LinearOpMode {
         while (opModeIsActive()) {
             values = AimbotV2.getValues(aimbots.calculateSideLengthUsingPods());
             turret.setServoPoseManaul(1);
-            turret.setFlywheelToRPM((int)values[1] - 100);
+            turret.setFlywheelToRPM((int)(values[1] *0.92));
             turret.update();
             aimbots.update();
-            turret.turretSetIdealAngleUsingLLandPods();
+            if(!stopAiming) {
+                turret.turretSetIdealAngleUsingLLandPods();
+            }
+            spindexer.updateState();
+            pods.update();
             switch (AutoState) {
-                case 0: {
+                case 0:
                     timer.startTime();
-                    fire3();
-                    if(timer.seconds() > 8){
+                    //aim and fire 3 balls here
+                   fire3Balls();
+                    while(timer.seconds() < 7 && timer.seconds() > 4.9 && opModeIsActive()){
+                        pods.holdPosition(104, 37, -90, 1);
+                        pods.update();
+                        if(pods.holdPosition(104, 37, -90,1)){
                             AutoState = 1;
-
+                        }else{
+                            pods.update();
+                            turret.update();
+                            aimbots.update();
+                            spindexer.updateState();
+                            turret.setIntakeSpeed(0.6);
+                        }
                     }
-                }
+
                 break;
-                case 1:{
-                    telemetry.speak("Gamepad 2:\n" +
-                            "Spindexer firing:\n" +
-                            "Gamepad2.right Dpad: spindexer go back\n" +
-                            "Gamepad2.left Dpad, spindexer advance\n" +
-                            "Gamepad2.up Dpad go pose 2\n" +
-                            "Gamepad2.down Dpad go pose 0\n" +
-                            "Fire:\n" +
-                            "Gamepad2.left trigger: fire 1 ball\n" +
-                            "Gamepad 2.Left bumper fire 3 balls in pattern IN DEV\n" +
-                            "Spindexer intaking: a\n" +
-                            "Gamepad2.a runs the intake\n" +
-                            "Gamepad2.y spindexer go to slot 0\n" +
-                            "Gamepad2.x spindexer go to next intaking slot\n" +
-                            "Gamepad2.b spindexer go back to last intaking slot\n" +
-                            "Turret Manual override \n" +
-                            "Gamepad2.left_stick_x: turret rotate left and right 5 degrees per time you move the stick all the way right or left\n" +
-                            "Gamepad2.left_stick_y: turret move hood up or down 0.07 servo per second\n" +
-                            "Gamepad2.right_stick_y: rpm increment + or - 100 per time you move the stick to the edge \n" +
-                            "Gamepad2 guide button toggle between auto turret and manual turret\n" +
-                            "Map the left and right sticks to turret controls, hood and rpm and \n" +
-                            "Auto turret mode\n" +
-                            "No control\n" +
-                            "Manual turret mode\n" +
-                            "Gamepad2: joysticks/triggers: >0.8 then do something \n" +
-                            "Gamepad 1:\n" +
-                            "Gamepad1.left_stick_y: drive chassis forward/back\n" +
-                            "Gamepad1.left_stick_x:chassis strafe left and right\n" +
-                            "Gamepad1.right_stick_x: rotate chassis left and right\n" +
-                            "\n" +
-                            "\n" +
-                            "\n" +
-                            "\n");
+                case 1:
+                    ElapsedTime timer2 = new ElapsedTime();
+                    timer.reset();
+                    spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
+                        pods.update();
+                    while (timer.seconds() < 5 && opModeIsActive()) {
+                        pods.holdPosition(120, 37, -90, 0.58);
+                        turret.update();
+                        turret.setIntakeSpeed(1);
+                        pods.update();
+                        spindexer.updateState();
+                        aimbots.update();
+                        if (spindexer.getBallColorImmediately() != Spindexer.color.UNDECTED) {
+                            if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_PICKUP) {
+                                timer2.reset();
+                                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_PICKUP);
+                                pods.update();
+                            } else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_PICKUP && timer2.seconds() > 0.3) {
+                                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_PICKUP);
+                                timer2.reset();
+                                pods.update();
+                            } else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_PICKUP && timer2.seconds() > 0.3) {
+                                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
+                                turret.setIntakeSpeed(0);
+                                AutoState = 2;
+                            }
+                        }
+                        if(timer.seconds() > 3.5){
+                            AutoState = 2;
+                            turret.setIntakeSpeed(0);
+                        }
+                    }
+
+
+
+                break;
+                case 2:
+                    timer.reset();
+                    while (timer.seconds() < 1.8 && timer.seconds() > 0 && opModeIsActive())
+                    {
+                        pods.holdPosition(88, 9, -90, 1);
+                        turret.update();
+                        pods.update();
+                        aimbots.update();
+                        spindexer.updateState();
+                        spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
+                    }
+                    if(timer.seconds() > 1.7){
+                        AutoState = 3;
+                    }
+                    break;
+                case 3:
+                    timer.reset();
+                    spindexer.fireFlickerServo();
+                    while(timer.seconds() < 5 & opModeIsActive()) {
+                        //flick the ball
+                        spindexer.updateState();
+                        //move to next slot
+                        if (spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && timer.seconds() > 0.7) {
+                            spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_FIRE);
+                            spindexer.updateState();
+                        }
+                        if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE && timer.seconds() > 3.05) {
+                            //fire
+                            spindexer.fireFlickerServo();
+                            spindexer.updateState();
+                        }
+                        if (timer.seconds() > 3.3) {
+                            spindexer.reloadFlickerServo();
+                        }
+                        spindexer.updateState();
+                        if (spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE
+                                || timer.seconds() > 3.5) {
+                            spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_FIRE);
+                            spindexer.updateState();
+                        }
+                        if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && timer.seconds() > 3.75) {
+                            spindexer.fireFlickerServo();
+                            spindexer.updateState();
+                            if (timer.seconds() > 4.1) {
+                                spindexer.reloadFlickerServo();
+                                spindexer.updateState();
+                                AutoState = 4;
+
+                            }
+                        }
+                        turret.update();
+                        spindexer.updateState();
+                        aimbots.update();
+                    }
+                    break;
+                case 4:
+                    stopAiming = true;
+                    turret.setTurretPositionDegrees(-90, 1);
+                    turret.setFlywheelToRPM(0);
+                    spindexer.reloadFlickerServo();
+                    spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
+                    break;
+
+
+        }
+            telemetry.addData("state", spindexer.getFlickerState());
+            telemetry.update();
+    }
+
+    }
+
+
+
+    public void fire3Balls(){
+        if(timer.seconds() > 2) {
+            //flick the ball
+            if(timer.seconds() > 2 && timer.seconds() < 2.3){
+                spindexer.fireFlickerServo();
+            }
+            spindexer.updateState();
+            //move to next slot
+            if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && timer.seconds() > 2.7){
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_FIRE);
+                spindexer.updateState();
+            }
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE && timer.seconds() > 3.05){
+                //fire
+                spindexer.fireFlickerServo();
+                spindexer.updateState();
+                if(timer.seconds() > 3.4){
+                    spindexer.reloadFlickerServo();
                 }
-
-        }
-    }
-
-    }
-    public void fire3(){
-        while(timer.seconds() < 2){
-            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE && timer.seconds() > 1.2){
+            }
+            spindexer.updateState();
+            if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE
+                    || timer.seconds() > 3.5){
+                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_FIRE);
+                spindexer.updateState();
+            }
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && timer.seconds() > 4){
                 spindexer.fireFlickerServo();
+                spindexer.updateState();
+                if(timer.seconds()> 4.3){
+                    spindexer.reloadFlickerServo();
+                    spindexer.updateState();
+                }
             }
-            turret.setFlywheelToRPM((int)values[1] - 300);
-            turret.update();
+
         }
-        while(timer.seconds() < 2){
-            if(spindexer.getFlickerState() == Spindexer.FlickerServoState.FIRE && timer.seconds() > 0.45){
-                spindexer.reloadFlickerServo();
-            }
-            turret.setFlywheelToRPM((int)values[1] - 300);
-            turret.update();
-        }
+    }
+    public void launch3second(){
         timer.reset();
-        while(timer.seconds() < 1){
-            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && timer.seconds() > 0.5){
-                spindexer.fireFlickerServo();
-            }
-            turret.setFlywheelToRPM((int)values[1] - 300);
-            turret.update();
+        spindexer.fireFlickerServo();
+        spindexer.updateState();
+        if(timer.seconds() > 0.3 && timer.seconds() < 0.5){
+            spindexer.reloadFlickerServo();
+            spindexer.updateState();
         }
-        while(timer.seconds() < 1.75){
-            if(spindexer.getFlickerState() == Spindexer.FlickerServoState.FIRE && timer.seconds() > 0.8){
+        //move to next slot
+        if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED || timer.seconds() > 0.5){
+            spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_FIRE);
+            spindexer.updateState();
+        }
+        if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE || timer.seconds() > 0.7){
+            //fire
+            spindexer.fireFlickerServo();
+            spindexer.updateState();
+            if(timer.seconds() > 0.9){
                 spindexer.reloadFlickerServo();
             }
-            turret.setFlywheelToRPM((int)values[1] - 300);
-            turret.update();
         }
-        timer.reset();
-        while(timer.seconds() < 1){
-            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE && timer.seconds() > 0.5){
-                spindexer.fireFlickerServo();
-            }
-            turret.setFlywheelToRPM((int)values[1] - 300);
-            turret.update();
+        spindexer.updateState();
+        if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE
+                || timer.seconds() > 1.15){
+            spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_FIRE);
+            spindexer.updateState();
         }
-        while(timer.seconds() < 1.75){
-            if(spindexer.getFlickerState() == Spindexer.FlickerServoState.FIRE && timer.seconds() > 0.35){
+        if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE || timer.seconds() > 1.4){
+            spindexer.fireFlickerServo();
+            spindexer.updateState();
+            if(timer.seconds()> 1.65){
                 spindexer.reloadFlickerServo();
+                spindexer.updateState();
             }
-            turret.setFlywheelToRPM((int)values[1] - 300);
-            turret.update();
         }
 
-    }
 
-    public void resetArtifacts(){
-        robotSubsystem.setFlywheelVelocity(-300);
-        robotSubsystem.spinBelt(-0.2);
-        robotSubsystem.spinIntake(1);
-    }
-    public void shutOff(){
-        robotSubsystem.spinBelt(0);
+
     }
 }

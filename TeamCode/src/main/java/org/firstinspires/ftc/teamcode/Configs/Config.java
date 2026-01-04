@@ -54,9 +54,9 @@ public class Config {
 
     //pindexer
     //time for axon spindexer with MAX mk2 to move 1 slot position
-    public final double timePerDegInSeconds = 0.3/120;
+    public final double timePerDegInSeconds =1.2/360;
     //flicker servo time same thing
-    public final double timeForFlickInSeconds = 0.4;
+    public final double timeForFlickInSeconds = 0.3;
 
 
     public final String firingServoName = "firingServo";
@@ -72,13 +72,13 @@ public class Config {
     public final String sl2 = "slot2";
 
     //TODO if the ratio of the gears is 40:30 the servo needs to be 270degress of rotation
-    public final double slot0FiringPosition = 0.725;
-    public final double slot1FiringPosition = 0;
-    public final double slot2FiringPosition = 0.35;
+    public static final double slot0FiringPosition = 0.725;
+    public static final double slot1FiringPosition = 0;
+    public static final double slot2FiringPosition = 0.35;
 
-    public final double slot0Pickup = 0.15;
-    public final double slot1Pickup = 0.5;
-    public final double slot2Pickup = 0.9;
+    public static final double slot0Pickup = 0.15;
+    public static final double slot1Pickup = 0.5;
+    public static final double slot2Pickup = 0.9;
     //degrees
     public final double slot0FiringPositionDegrees = 257.375;
     public final double slot1FiringPositionDegrees = 0.0;
