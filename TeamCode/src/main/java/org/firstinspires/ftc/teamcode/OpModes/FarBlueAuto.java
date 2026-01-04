@@ -65,7 +65,7 @@ public class FarBlueAuto extends LinearOpMode {
         while (opModeIsActive()) {
             values = AimbotV2.getValues(aimbots.calculateSideLengthUsingPods());
             turret.setServoPoseManaul(1);
-            turret.setFlywheelToRPM((int)((values[1])*0.965));
+            turret.setFlywheelToRPM((int)((values[1])*0.96));
             turret.update();
             aimbots.update();
             if(!stopAiming) {
@@ -88,7 +88,7 @@ public class FarBlueAuto extends LinearOpMode {
                             turret.update();
                             aimbots.update();
                             spindexer.updateState();
-                            turret.setIntakeSpeed(0.6);
+                            turret.setIntakeSpeed(1);
                         }
                     }
 
@@ -99,7 +99,7 @@ public class FarBlueAuto extends LinearOpMode {
                     spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
                     pods.update();
                     while (timer.seconds() < 5 && opModeIsActive()) {
-                        pods.holdPosition(20, 37, 90, 0.58);
+                        pods.holdPosition(18, 37, 90, 0.25);
                         turret.update();
                         turret.setIntakeSpeed(1);
                         pods.update();
