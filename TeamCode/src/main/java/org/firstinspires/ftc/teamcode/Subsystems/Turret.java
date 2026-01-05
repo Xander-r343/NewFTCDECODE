@@ -98,14 +98,12 @@ public class    Turret {
         else if(degrees < -135){
             targetPose = -135;
         }
-        else if(degrees > 225){
-            targetPose = 225;
+        else if(degrees > 135){
+            targetPose = 135;
         }
         //this line sets the turret to aim based on field position rather than aiming off of the robot
         turretRotater.setTargetPosition(((int)Math.round((targetPose - aimbots.pods.getHeading()) *config.ticksPerDegree)));
         //sets the motor to runnnn
-        telemetry.update();
-        telemetry.addData("e", aimbots.getIdealAngle());
         turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //sets power to given power
         turretRotater.setPower(power);

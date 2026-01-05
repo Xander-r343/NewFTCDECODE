@@ -44,10 +44,10 @@ public class TeleOp_V2_1 extends OpMode {
         //initialize subsystems
         drivetrain = new MecanumDrivetrain(1, hardwareMap);
         pods = new OdoPods(hardwareMap, drivetrain);
-        pods.setPosition(72,9,0);
-        aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
+       // pods.setPosition(72,9,0);
+        aimbots = new Aimbots((int)blackboard.get(config.AllianceKey), pods, hardwareMap);
         //rbgIndicator = hardwareMap.get(Servo.class, config.RBGName);
-        turret = new Turret(hardwareMap, config.RedAlliance, aimbots, telemetry);
+        turret = new Turret(hardwareMap, (int)blackboard.get(config.AllianceKey), aimbots, telemetry);
         //initialize the robotSubsystem class
         //robotSubsystem = new ShooterSubsystem(hardwareMap);
         vel = 0;
@@ -122,7 +122,7 @@ public class TeleOp_V2_1 extends OpMode {
                 justFired = false;
                 spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_FIRE);
             }
-            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && firingTimer.seconds() > 0.37){
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && firingTimer.seconds() > 0.45){
                 justFired = false;
                 spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
             }

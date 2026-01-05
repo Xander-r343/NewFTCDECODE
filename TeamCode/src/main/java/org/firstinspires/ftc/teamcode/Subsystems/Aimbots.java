@@ -69,15 +69,11 @@ public class Aimbots {
     }
 
     /**
-     * @return ideal robot angle to face target
+     * @return ideal robot angle to face target based on trig function
+     * uses targetX and targetY (goal coordinates)
+     * -Math.toDegrees(Math.atan2(targetX - pods.getX(), TargetY - pods.getY()));
      */
     public double getIdealAngle() {
-        double toReturn = 0;
-        /*if (Math.toDegrees(Math.acos(((CVertX - AvertX) / calculateSideLengthUsingPods()))) > 180) {
-        } else {
-            toReturn = Math.toDegrees(Math.acos(((CVertX - AvertX) / calculateSideLengthUsingPods()))) - 150;
-        }*/
-
         return -Math.toDegrees(Math.atan2(AvertX - pods.getX(), AvertY - pods.getY()));
     }
 
