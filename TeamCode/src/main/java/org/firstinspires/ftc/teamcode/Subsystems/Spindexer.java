@@ -61,6 +61,7 @@ public class Spindexer {
     Config config;
     public double TimestampSpindexer;
     public double TimestampFlicker;
+    ///
     ///          |
     ///          |
     ///       1  o    2
@@ -157,7 +158,6 @@ public class Spindexer {
 
 
     /**
-     *
      * @param newPos give the spindexer a new pos to move to
      */
     public void moveSpindexerToPos(SpindexerRotationalState newPos)

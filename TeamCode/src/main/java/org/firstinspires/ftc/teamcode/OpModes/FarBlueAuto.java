@@ -160,19 +160,19 @@ public class FarBlueAuto extends LinearOpMode {
                             spindexer.fireFlickerServo();
                             spindexer.updateState();
                         }
-                        if (timer.seconds() > 3.4) {
+                        if (timer.seconds() > 3.6) {
                             spindexer.reloadFlickerServo();
                         }
                         spindexer.updateState();
                         if (spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE
-                                || timer.seconds() > 3.6) {
+                                || timer.seconds() > 4) {
                             spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_FIRE);
                             spindexer.updateState();
                         }
-                        if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && timer.seconds() > 3.85) {
+                        if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && timer.seconds() > 4.3) {
                             spindexer.fireFlickerServo();
                             spindexer.updateState();
-                            if (timer.seconds() > 4.4) {
+                            if (timer.seconds() > 4.7) {
                                 spindexer.reloadFlickerServo();
                                 spindexer.updateState();
                                 AutoState = 4;
@@ -210,27 +210,27 @@ public class FarBlueAuto extends LinearOpMode {
             }
             spindexer.updateState();
             //move to next slot
-            if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && timer.seconds() > 2.7){
+            if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && timer.seconds() > 3){
                 spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_FIRE);
                 spindexer.updateState();
             }
-            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE && timer.seconds() > 3.05){
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE && timer.seconds() > 3.35){
                 //fire
                 spindexer.fireFlickerServo();
                 spindexer.updateState();
-                if(timer.seconds() > 3.4){
+                if(timer.seconds() > 4){
                     spindexer.reloadFlickerServo();
                 }
             }
             spindexer.updateState();
             if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE
-                    || timer.seconds() > 3.5){
+                    || timer.seconds() > 4.5){
                 spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_FIRE);
                 spindexer.updateState();
             }
-            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && timer.seconds() > 4){
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && timer.seconds() > 4.75){
                 spindexer.fireFlickerServo();
-                if(timer.seconds()> 4.3){
+                if(timer.seconds()> 5.3){
                     spindexer.updateState();
                     spindexer.reloadFlickerServo();
                     spindexer.updateState();

@@ -140,7 +140,10 @@ public class TeleOp_V2_1 extends OpMode {
         //intake hold for on
 
         if(gamepad2.a){
-            turret.setIntakeSpeed(100);
+            turret.setIntakeSpeed(1.0);
+        }
+        else if(gamepad2.right_trigger > 0){
+            turret.setIntakeSpeed(Math.pow(gamepad2.right_trigger, 1.2 ));
         }
         else{
             turret.setIntakeSpeed(0);

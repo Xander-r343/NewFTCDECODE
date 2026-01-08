@@ -65,7 +65,7 @@ public class FarRedAuto extends LinearOpMode {
         while (opModeIsActive()) {
             values = AimbotV2.getValues(aimbots.calculateSideLengthUsingPods());
             turret.setServoPoseManaul(1);
-            turret.setFlywheelToRPM((int)(values[1] *0.92));
+            turret.setFlywheelToRPM((int)((values[1])*0.96));
             turret.update();
             aimbots.update();
             if(!stopAiming) {
@@ -77,8 +77,8 @@ public class FarRedAuto extends LinearOpMode {
                 case 0:
                     timer.startTime();
                     //aim and fire 3 balls here
-                   fire3Balls();
-                    while(timer.seconds() < 7 && timer.seconds() > 4.9 && opModeIsActive()){
+                    fire3Balls();
+                    while(timer.seconds() < 8 && timer.seconds() > 6 && opModeIsActive()){
                         pods.holdPosition(104, 37, -90, 1);
                         pods.update();
                         if(pods.holdPosition(104, 37, -90,1)){
@@ -88,18 +88,18 @@ public class FarRedAuto extends LinearOpMode {
                             turret.update();
                             aimbots.update();
                             spindexer.updateState();
-                            turret.setIntakeSpeed(0.6);
+                            turret.setIntakeSpeed(1);
                         }
                     }
 
-                break;
+                    break;
                 case 1:
                     ElapsedTime timer2 = new ElapsedTime();
                     timer.reset();
                     spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
-                        pods.update();
+                    pods.update();
                     while (timer.seconds() < 5 && opModeIsActive()) {
-                        pods.holdPosition(120, 37, -90, 0.58);
+                        pods.holdPosition(129, 37, -90, 0.25);
                         turret.update();
                         turret.setIntakeSpeed(1);
                         pods.update();
@@ -128,7 +128,7 @@ public class FarRedAuto extends LinearOpMode {
 
 
 
-                break;
+                    break;
                 case 2:
                     timer.reset();
                     while (timer.seconds() < 1.8 && timer.seconds() > 0 && opModeIsActive())
@@ -160,19 +160,19 @@ public class FarRedAuto extends LinearOpMode {
                             spindexer.fireFlickerServo();
                             spindexer.updateState();
                         }
-                        if (timer.seconds() > 3.3) {
+                        if (timer.seconds() > 3.6) {
                             spindexer.reloadFlickerServo();
                         }
                         spindexer.updateState();
                         if (spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE
-                                || timer.seconds() > 3.5) {
+                                || timer.seconds() > 4) {
                             spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_FIRE);
                             spindexer.updateState();
                         }
-                        if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && timer.seconds() > 3.75) {
+                        if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && timer.seconds() > 4.3) {
                             spindexer.fireFlickerServo();
                             spindexer.updateState();
-                            if (timer.seconds() > 4.1) {
+                            if (timer.seconds() > 4.7) {
                                 spindexer.reloadFlickerServo();
                                 spindexer.updateState();
                                 AutoState = 4;
@@ -193,10 +193,10 @@ public class FarRedAuto extends LinearOpMode {
                     break;
 
 
-        }
+            }
             telemetry.addData("state", spindexer.getFlickerState());
             telemetry.update();
-    }
+        }
 
     }
 
@@ -210,28 +210,28 @@ public class FarRedAuto extends LinearOpMode {
             }
             spindexer.updateState();
             //move to next slot
-            if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && timer.seconds() > 2.7){
+            if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && timer.seconds() > 3){
                 spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_FIRE);
                 spindexer.updateState();
             }
-            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE && timer.seconds() > 3.05){
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE && timer.seconds() > 3.35){
                 //fire
                 spindexer.fireFlickerServo();
                 spindexer.updateState();
-                if(timer.seconds() > 3.4){
+                if(timer.seconds() > 4){
                     spindexer.reloadFlickerServo();
                 }
             }
             spindexer.updateState();
             if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE
-                    || timer.seconds() > 3.5){
+                    || timer.seconds() > 4.5){
                 spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_FIRE);
                 spindexer.updateState();
             }
-            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && timer.seconds() > 4){
+            if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && timer.seconds() > 4.75){
                 spindexer.fireFlickerServo();
-                spindexer.updateState();
-                if(timer.seconds()> 4.3){
+                if(timer.seconds()> 5.3){
+                    spindexer.updateState();
                     spindexer.reloadFlickerServo();
                     spindexer.updateState();
                 }
