@@ -64,8 +64,8 @@ public class FarBlueAuto extends LinearOpMode {
         blackboard.put(config.AllianceKey,config.BlueAlliance);
         while (opModeIsActive()) {
             values = AimbotV2.getValues(aimbots.calculateSideLengthUsingPods());
-            turret.setServoPoseManaul(1);
-            turret.setFlywheelToRPM((int)((values[1])*0.96));
+            turret.setServoPoseManaul(0.95);
+            turret.setFlywheelToRPM((int)((values[1])*0.94));
             turret.update();
             aimbots.update();
             if(!stopAiming) {
@@ -79,11 +79,12 @@ public class FarBlueAuto extends LinearOpMode {
                     //aim and fire 3 balls here
                     fire3Balls();
                     while(timer.seconds() < 7 && timer.seconds() > 4.9 && opModeIsActive()){
-                        pods.holdPosition(40, 37, 90, 1);
+                        pods.holdPosition(42, 37, 90, 1);
                         pods.update();
-                        if(pods.holdPosition(40, 37, 90,1)){
+                        if(pods.holdPosition(42, 37, 90,1)){
                             AutoState = 1;
                         }else{
+                            spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
                             pods.update();
                             turret.update();
                             aimbots.update();
@@ -96,10 +97,9 @@ public class FarBlueAuto extends LinearOpMode {
                 case 1:
                     ElapsedTime timer2 = new ElapsedTime();
                     timer.reset();
-                    spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
                     pods.update();
                     while (timer.seconds() < 5 && opModeIsActive()) {
-                        pods.holdPosition(18, 37, 90, 0.25);
+                        pods.holdPosition(5, 37, 90, 0.3);
                         turret.update();
                         turret.setIntakeSpeed(1);
                         pods.update();
@@ -131,7 +131,7 @@ public class FarBlueAuto extends LinearOpMode {
                     break;
                 case 2:
                     timer.reset();
-                    while (timer.seconds() < 1.8 && timer.seconds() > 0 && opModeIsActive())
+                    while (timer.seconds() < 2.6 && timer.seconds() > 0 && opModeIsActive())
                     {
                         pods.holdPosition(56, 9, 90, 1);
                         turret.update();
@@ -140,7 +140,7 @@ public class FarBlueAuto extends LinearOpMode {
                         spindexer.updateState();
                         spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
                     }
-                    if(timer.seconds() > 1.7){
+                    if(timer.seconds() > 2.5){
                         AutoState = 3;
                     }
                     break;
@@ -148,6 +148,7 @@ public class FarBlueAuto extends LinearOpMode {
                     timer.reset();
                     spindexer.fireFlickerServo();
                     while(timer.seconds() < 5 & opModeIsActive()) {
+                        pods.update();
                         //flick the ball
                         spindexer.updateState();
                         //move to next slot
@@ -185,11 +186,15 @@ public class FarBlueAuto extends LinearOpMode {
                     }
                     break;
                 case 4:
+                    pods.holdPosition(56, 35, 90,1);
                     stopAiming = true;
-                    turret.setTurretPositionDegrees(90, 1);
                     turret.setFlywheelToRPM(0);
                     spindexer.reloadFlickerServo();
                     spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
+                    pods.update();
+                    if(timer.seconds() < 6.5){
+                        turret.setTurretPositionDegrees(90, 1);
+                    }
                     break;
 
 

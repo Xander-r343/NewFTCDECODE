@@ -65,7 +65,7 @@ public class Aimbots {
      * based on alliance picked
      */
     public double calculateSideLengthUsingPods() {
-        return Math.hypot((AvertX - CVertX), (AvertY - CVertY))-9;
+        return Math.hypot((AvertX - CVertX), (AvertY - CVertY))-4;
     }
 
     /**
