@@ -102,14 +102,14 @@ public class    Turret {
             targetPose = 135;
         }
         //this line sets the turret to aim based on field position rather than aiming off of the robot
-        turretRotater.setTargetPosition(((int)Math.round((targetPose - aimbots.pods.getHeading()) *config.ticksPerDegree)));
+        turretRotater.setTargetPosition(Math.round(targetPose));
         //sets the motor to runnnn
         turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //sets power to given power
         turretRotater.setPower(power);
     }
     public double getTurretPositionDegrees(){
-        return aimbots.pods.getHeading() + ((turretRotater.getCurrentPosition()/config.ticksPerDegree));
+        return ((turretRotater.getCurrentPosition()/config.ticksPerDegree));
     }
     public void turretSetIdealAngleUsingLLandPods(){
         setTurretPositionDegrees(aimbots.getIdealAngle(),1);

@@ -107,4 +107,6 @@ public class Config {
     //flywheel names
     public final String newRobotLeftFlywheel = "leftFlywheel";
     public final String newRobotRightFlywheel = "rightFlywheel";
+    public final double velScalar = 1.0;
+    public final double angularVelScalar = 1.0;
 }

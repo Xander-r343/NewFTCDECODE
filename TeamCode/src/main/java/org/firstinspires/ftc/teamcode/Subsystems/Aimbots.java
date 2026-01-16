@@ -74,7 +74,10 @@ public class Aimbots {
      * -Math.toDegrees(Math.atan2(targetX - pods.getX(), TargetY - pods.getY()));
      */
     public double getIdealAngle() {
-        return -Math.toDegrees(Math.atan2(AvertX - pods.getX(), AvertY - pods.getY()));
+        AvertX = AvertX + (pods.getVelX() * config.velScalar);
+        AvertY = AvertY + (pods.getVelY() * config.velScalar);
+        double currentHeading = pods.getHeading() + (pods.getVelH() * config.angularVelScalar);
+        return -Math.toDegrees(Math.atan2(AvertX - pods.getX(), AvertY - pods.getY()) - currentHeading);
     }
 
     public double getDistanceUsingLL() {

@@ -103,9 +103,12 @@ public class OdoPods {
         return pinpoint.getPosition().getHeading(AngleUnit.DEGREES);
     }
 
-    public double getVelocity() {
+    public double getVelH() {
         return pinpoint.getHeadingVelocity();
     }
+    public double getVelX(){return  pinpoint.getVelX();}
+    public double getVelY(){return  pinpoint.getVelY();}
+
 
     public void update() {
         pinpoint.update();
