@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.Old.Subsystems.Aimbots;
-import org.firstinspires.ftc.teamcode.Old.Subsystems.ShooterSubsystem;
+import org.firstinspires.ftc.teamcode.Old.Subsystems.retired.ShooterSubsystem;
 
 @Disabled
 public class test extends OpMode {

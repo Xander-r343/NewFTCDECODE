@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Old.Configs.Config;
 import org.firstinspires.ftc.teamcode.Old.Sensors.OdoPods;
 import org.firstinspires.ftc.teamcode.Old.Subsystems.Aimbots;
 import org.firstinspires.ftc.teamcode.Old.Subsystems.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.Old.Subsystems.ShooterSubsystem;
+import org.firstinspires.ftc.teamcode.Old.Subsystems.retired.ShooterSubsystem;
 @Disabled
 public class TeleOpRed extends OpMode {
     ShooterSubsystem robotSubsystem;

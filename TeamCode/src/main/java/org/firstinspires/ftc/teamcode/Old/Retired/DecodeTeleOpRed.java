@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.teamcode.Old.Configs.Config;
 import org.firstinspires.ftc.teamcode.Old.Sensors.OdoPods;
 import org.firstinspires.ftc.teamcode.Old.Subsystems.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.Old.Subsystems.ShooterSubsystem;
+import org.firstinspires.ftc.teamcode.Old.Subsystems.retired.ShooterSubsystem;
 @Disabled
 public class DecodeTeleOpRed extends OpMode {
     public final double[] LaunchPose1 = {0, 18, 40, 1};//x,y,heading,speed
