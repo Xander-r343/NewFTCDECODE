@@ -55,7 +55,7 @@ public class FarBlueAuto extends LinearOpMode {
         AutoState = 0;
         aimbots = new Aimbots(config.BlueAlliance, pods, hardwareMap);
         turret = new Turret(hardwareMap, config.BlueAlliance, aimbots,telemetry);
-        spindexer = new Spindexer(hardwareMap, runtime);
+        spindexer = new Spindexer(hardwareMap, runtime, telemetry);
         spindexer.reloadFlickerServo();
         spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
         waitForStart();

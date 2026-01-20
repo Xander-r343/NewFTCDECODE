@@ -56,7 +56,7 @@ public class FarBlueAutoDev extends LinearOpMode {
         AutoState = 0;
         aimbots = new Aimbots(config.BlueAlliance, pods, hardwareMap);
         turret = new Turret(hardwareMap, config.BlueAlliance, aimbots,telemetry);
-        spindexer = new Spindexer(hardwareMap, runtime);
+        spindexer = new Spindexer(hardwareMap, runtime,telemetry);
         spindexer.reloadFlickerServo();
         spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
         waitForStart();
@@ -157,7 +157,7 @@ public class FarBlueAutoDev extends LinearOpMode {
 
     public void fire3Balls(){
             //flick the ball
-        if(turret.flywheelIsSpedUp((int)(values[1]*0.96), 50)) {
+        if(turret.flywheelIsUpToSpeed((int)(values[1]*0.96), 50)) {
             spindexer.fireFlickerServo();
         }
             spindexer.updateState();

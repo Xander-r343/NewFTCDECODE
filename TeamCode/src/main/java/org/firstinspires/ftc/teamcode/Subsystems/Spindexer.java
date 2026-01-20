@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Configs.Config;
 
@@ -22,6 +23,7 @@ public class Spindexer {
     private SpindexerRotationalState currentSpindexerState;
     private FlickerServoState flickerServoState;
     private double eta;
+    Telemetry telemetry;
     public enum color{
         PURPLE, GREEN, UNDECTED
     }
@@ -71,7 +73,7 @@ public class Spindexer {
     ///      intake side
     ///        firing side
 
-    public Spindexer(HardwareMap hardwareMap, ElapsedTime Givenruntime){
+    public Spindexer(HardwareMap hardwareMap, ElapsedTime Givenruntime, Telemetry givenTelemetry){
         config = new Config();
         //initialize servos
         spindexerServo = hardwareMap.get(Servo.class, config.stbSv);
@@ -82,12 +84,13 @@ public class Spindexer {
         firingServo = hardwareMap.get(Servo.class, config.firingServoName);
         currentSpindexerState = SpindexerRotationalState.INIT;
         previousSpindexerState = SpindexerRotationalState.INIT;
-        flickerServoState = FlickerServoState.INIT;
+        flickerServoState = FlickerServoState.RELOADED;
         firingServo.resetDeviceConfigurationForOpMode();
         spindexerServo.resetDeviceConfigurationForOpMode();
         TimestampSpindexer = 0;
         TimestampFlicker = 0;
         runtime = Givenruntime;
+        telemetry = givenTelemetry;
     }
 
     /**
@@ -97,9 +100,9 @@ public class Spindexer {
     public void updateState()
     {
         // Is the spindexer in a moving state?
-        if(     currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_0_FIRE ||
-                currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_1_FIRE ||
-                currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_2_FIRE ||
+        if(     currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_0_FIRE   ||
+                currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_1_FIRE   ||
+                currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_2_FIRE   ||
                 currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_0_PICKUP ||
                 currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_1_PICKUP ||
                 currentSpindexerState == SpindexerRotationalState.MOVING_TO_SLOT_2_PICKUP)
@@ -132,17 +135,24 @@ public class Spindexer {
 
             }
         }
-        if(runtime.seconds() > TimestampFlicker + config.timeForFlickInSeconds &&flickerServoState == FlickerServoState.FIRING){
+        // Check and reset flicker state based on HW
+        if(runtime.seconds() > TimestampFlicker + config.timeForFlickInSeconds && flickerServoState == FlickerServoState.FIRING){
             reloadFlickerServo();
         }
-        if(runtime.seconds() > TimestampFlicker + config.timeForFlickInSeconds &&flickerServoState == FlickerServoState.RELOADING){
+        else if(runtime.seconds() > TimestampFlicker + config.timeForFlickInSeconds && flickerServoState == FlickerServoState.RELOADING){
             flickerServoState = FlickerServoState.RELOADED;
         }
     }
     public void fireFlickerServo(){
         TimestampFlicker = runtime.seconds();
-        firingServo.setPosition(config.firingServoFirePose);
-        flickerServoState = FlickerServoState.FIRING;
+        if(flickerServoState == FlickerServoState.RELOADED) {
+            firingServo.setPosition(config.firingServoFirePose);
+            flickerServoState = FlickerServoState.FIRING;
+        }
+        else {
+            float zero = 0.0f;
+            float bad_val = 1.0f / zero;
+        }
     }
     public void reloadFlickerServo(){
         TimestampFlicker = runtime.seconds();

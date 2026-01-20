@@ -55,7 +55,7 @@ public class V2Teleop extends OpMode {
         hoodAngle = 0.55;
         //flywheelActive = false;
         //continousAim = false;
-        spindexer = new Spindexer(hardwareMap, timer);
+        spindexer = new Spindexer(hardwareMap, timer, telemetry);
         intakingMode = false;
         slot1 = false;
         timer = new ElapsedTime();

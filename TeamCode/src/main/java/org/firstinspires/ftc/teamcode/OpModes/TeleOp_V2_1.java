@@ -56,7 +56,7 @@ public class TeleOp_V2_1 extends OpMode {
         //continousAim = false;
         runtimer = new ElapsedTime();
         runtimer.startTime();
-        spindexer = new Spindexer(hardwareMap, runtimer);
+        spindexer = new Spindexer(hardwareMap, runtimer, telemetry);
         firingTimer = new ElapsedTime();
         timer = new ElapsedTime();
         spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
@@ -110,24 +110,24 @@ public class TeleOp_V2_1 extends OpMode {
             justFired = true;
             firingTimer.reset();
         }
-        if(firingTimer.seconds() > 0.35 && justFired){
+        if(firingTimer.seconds() > 1.0 && justFired){
 
             if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE)
             {
                 justFired = false;
                 spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_FIRE);
             }
-            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE && firingTimer.seconds() > 0.36)
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE && firingTimer.seconds() > 1.1)
             {
                 justFired = false;
                 spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_FIRE);
             }
-            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && firingTimer.seconds() > 0.45){
+            else if(spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE && firingTimer.seconds() > 1.2){
                 justFired = false;
                 spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
             }
         }
-        if(gamepad2.right_bumper){
+        if(gamepad2.rightBumperWasReleased()){
             if(autoSpindexIntake) {
                 autoSpindexIntake = false;
             }else{

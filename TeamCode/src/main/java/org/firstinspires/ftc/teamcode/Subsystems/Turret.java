@@ -161,8 +161,9 @@ public class    Turret {
      * @param speed the speed to check against the flywheel in rpm
      * @param error the amount of error of margin of rpm to still return true
      */
-    public boolean flywheelIsSpedUp(int speed, double error){
-        if(rightFlywheelMotor.getVelocity() < speed + error && rightFlywheelMotor.getVelocity() > speed){
+    public boolean flywheelIsUpToSpeed(int speed, double error){
+        if(     (getRpm() < speed + error) &&
+                (getRpm() > speed-error))     {
             return true;
         }
         else{
