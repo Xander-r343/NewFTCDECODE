@@ -253,7 +253,6 @@ public class Spindexer {
         switch (FiringState){
             case 0:
                 // Setup the state needed to fire the balls in the right order
-
                 // read motif, program firing order
                 firstFirePosition = SpindexerRotationalState.SLOT_0_FIRE;
                 secondFirePosition = SpindexerRotationalState.SLOT_1_FIRE;
@@ -276,7 +275,7 @@ public class Spindexer {
                     FiringState = 5;
                 }
                 break;
-            case 5: // Start spindexer moving
+            case 5: // Start spindexer moving state 2
                 moveSpindexerToPos(secondFirePosition);
                 FiringState = 6;
             case 6: //check to see if spindexer is finished moving
@@ -285,7 +284,32 @@ public class Spindexer {
                 }
                 else
                     break; // Haven't reached the right spindexer state yet, wait
-            case 7:
+            case 7: // Fire second ball
+                fireFlickerServo();
+                FiringState = 4;
+            case 8: // Wait for first fire to finish
+                if(getFlickerState() == FlickerServoState.RELOADED){
+                    FiringState = 9;
+                }
+                break;
+            case 9: // Start spindexer moving
+                moveSpindexerToPos(thirdFirePosition);
+                FiringState = 10;
+            case 10: //check to see if spindexer is finished moving
+                if(currentSpindexerState == thirdFirePosition){
+                    FiringState = 11;
+                }
+                else
+                    break; // Haven't reached the right spindexer state yet, wait
+            case 11: // Fire third ball
+                fireFlickerServo();
+                FiringState = 12;
+            case 12: // Wait for last fire to finish
+                if(getFlickerState() == FlickerServoState.RELOADED){
+                    FiringState = 100;
+                }
+                break;
+
             case 100:
                 FiringState = 0;
                 b3BallsFired = true;
