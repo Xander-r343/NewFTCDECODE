@@ -55,13 +55,9 @@ public class FarRedV2 extends LinearOpMode {
         aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
         turret = new Turret(hardwareMap, config.RedAlliance, aimbots,telemetry);
         spindexer = new Spindexer(hardwareMap, runtime, telemetry);
-
-        spindexer.reloadFlickerServo();
         spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
-
         // store alliance and position info for Teleop
         blackboard.put(config.AllianceKey,config.RedAlliance);
-
         waitForStart();
         runtime.reset();
         runtime.startTime();
@@ -74,7 +70,7 @@ public class FarRedV2 extends LinearOpMode {
             //should this be moved out of the while loop? They are init values, right?
             turret.setServoPoseManaul(0.95);
 
-            turret.setFlywheelToRPM((int)((values[1])*0.93));
+            turret.setFlywheelToRPM((int)3000);
 
             turret.update();
             aimbots.update();
@@ -83,32 +79,25 @@ public class FarRedV2 extends LinearOpMode {
             }
             spindexer.updateState();
             pods.update();
-            telemetry.addData("AutoState Case:",AutoState);
+            /*telemetry.addData("AutoState Case:",AutoState);
             telemetry.addData("flick", spindexer.getFlickerState());
             telemetry.addData("rpm", turret.getRpm());
-            telemetry.update();
+            telemetry.update();*/
             switch (AutoState){
                 case INIT:
-                    if(turret.flywheelIsUpToSpeed((int)(values[1]*0.93), 100))
+                    if(turret.flywheelIsUpToSpeed(3000, 100))
                         {
-                        timer.reset();
-                        AutoState = AutonomousState.SHOOT_1;
+                        if(spindexer.fire3Balls()){
+                            AutoState = AutonomousState.SHOOT_1;
+                            break;
+                        }
                     }
                     else {
                         break;
                     }
                 case SHOOT_1:
-                    spindexer.fireFlickerServo();
-                    AutoState = AutonomousState.SHOOT_1_CHECK_IF_DONE;
-                case SHOOT_1_CHECK_IF_DONE:
-                    // check here if firing is complete
-                    if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED){
-                        //0,2,1
-                        spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_FIRE);
-                        AutoState = AutonomousState.SHOOT_2;
-                    } else {
-                        break;
-                    }
+
+                    break;
 
             }
         }

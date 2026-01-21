@@ -12,6 +12,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Configs.Config;
 
+import kotlin.jvm.JvmField;
+
 public class Spindexer {
     public ElapsedTime runtime;
     private Servo spindexerServo;
@@ -24,6 +26,8 @@ public class Spindexer {
     private FlickerServoState flickerServoState;
     private double eta;
     Telemetry telemetry;
+    int FiringState = 0;
+
     public enum color{
         PURPLE, GREEN, UNDECTED
     }
@@ -42,6 +46,11 @@ public class Spindexer {
         MOVING_TO_SLOT_2_FIRE,
         INIT
     }
+
+    SpindexerRotationalState firstFirePosition = SpindexerRotationalState.SLOT_0_FIRE;
+    SpindexerRotationalState secondFirePosition = SpindexerRotationalState.SLOT_1_FIRE;
+    SpindexerRotationalState thirdFirePosition = SpindexerRotationalState.SLOT_2_FIRE;
+
     private double[] servoAngleLookupTable = {
                 Config.slot0Pickup, //SLOT0PICKUP,
                 0.0, // MOVING_TO_SLOT_0_PICKUP,
@@ -136,12 +145,18 @@ public class Spindexer {
             }
         }
         // Check and reset flicker state based on HW
-        if(runtime.seconds() > TimestampFlicker + config.timeForFlickInSeconds && flickerServoState == FlickerServoState.FIRING){
+
+        if(     (runtime.seconds() > (TimestampFlicker + config.timeForFlickInSeconds)) &&
+                flickerServoState == FlickerServoState.FIRING){
             reloadFlickerServo();
         }
-        else if(runtime.seconds() > TimestampFlicker + config.timeForFlickInSeconds && flickerServoState == FlickerServoState.RELOADING){
+
+        else if((runtime.seconds() > (TimestampFlicker + config.timeForFlickInSeconds)) &&
+                flickerServoState == FlickerServoState.RELOADING){
             flickerServoState = FlickerServoState.RELOADED;
         }
+
+
     }
     public void fireFlickerServo(){
         TimestampFlicker = runtime.seconds();
@@ -227,8 +242,61 @@ public class Spindexer {
             }
 
             return color.UNDECTED;
+    }
+    //commands
+    public boolean fire3Balls(){
+        boolean b3BallsFired = false;
+
+        // ensure we have the latest spindexer and flicker state positions
+        updateState();
+
+        switch (FiringState){
+            case 0:
+                // Setup the state needed to fire the balls in the right order
+
+                // read motif, program firing order
+                firstFirePosition = SpindexerRotationalState.SLOT_0_FIRE;
+                secondFirePosition = SpindexerRotationalState.SLOT_1_FIRE;
+                thirdFirePosition = SpindexerRotationalState.SLOT_2_FIRE;
+                FiringState = 1;
+            case 1: // Start spindexer moving
+                moveSpindexerToPos(firstFirePosition);
+                FiringState = 2;
+            case 2: //check to see if spindexer is finished moving
+                if(currentSpindexerState == firstFirePosition){
+                    FiringState = 3;
+                }
+                else
+                    break; // Haven't reached the right spindexer state yet, wait
+            case 3: // Fire first ball
+                fireFlickerServo();
+                FiringState = 4;
+            case 4: // Wait for first fire to finish
+                if(getFlickerState() == FlickerServoState.RELOADED){
+                    FiringState = 5;
+                }
+                break;
+            case 5: // Start spindexer moving
+                moveSpindexerToPos(secondFirePosition);
+                FiringState = 6;
+            case 6: //check to see if spindexer is finished moving
+                if(currentSpindexerState == secondFirePosition){
+                    FiringState = 7;
+                }
+                else
+                    break; // Haven't reached the right spindexer state yet, wait
+            case 7:
+            case 100:
+                FiringState = 0;
+                b3BallsFired = true;
+                break;
+        }
+        telemetry.addData("state", FiringState);
+        telemetry.update();
+        return b3BallsFired;
 
     }
+
 
 
 
