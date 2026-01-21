@@ -92,7 +92,7 @@ public class    Turret {
 
     public void setTurretPositionDegrees(double degrees, double power){
         int targetPose = 0;
-        if(degrees <=180 && degrees >= -180) {
+        if(degrees <=-135 && degrees >= -135) {
             targetPose = (int)degrees;
         }
         else if(degrees < -135){
@@ -101,7 +101,6 @@ public class    Turret {
         else if(degrees > 135){
             targetPose = 135;
         }
-        //this line sets the turret to aim based on field position rather than aiming off of the robot
         turretRotater.setTargetPosition(Math.round(targetPose));
         //sets the motor to runnnn
         turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -117,7 +116,17 @@ public class    Turret {
     public void continuouslyAim(boolean trueOrFalse){
         aimContinuously = trueOrFalse;
     }
-
+    public void setTurretUsingVelAim(){
+        //scalars
+        double XYScalar = 1.0;
+        double angularScalar = 1.0;
+        //correct the heading, x, and y controllers based on current velocity
+        double correctedXPos = aimbots.pods.getX() + (aimbots.pods.getVelX()* XYScalar);
+        double correctedYPos = aimbots.pods.getY() + (aimbots.pods.getVelY()* XYScalar);
+        double correctedHeadingPos = aimbots.pods.getHeading() + (aimbots.pods.getVelH()* angularScalar);
+        //set the turret's position to be
+        setTurretPositionDegrees(-Math.toDegrees(Math.toRadians(+ correctedHeadingPos)+ Math.atan2(aimbots.targetX - correctedXPos, aimbots.targetY -correctedYPos)) , 1);
+    }
     /**
      * sets the hood to a specific launch angle
      * @param givenLaunchAngle is the desired launch angle
