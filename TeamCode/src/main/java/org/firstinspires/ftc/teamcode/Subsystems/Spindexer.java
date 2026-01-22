@@ -246,10 +246,8 @@ public class Spindexer {
     //commands
     public boolean fire3Balls(){
         boolean b3BallsFired = false;
-
         // ensure we have the latest spindexer and flicker state positions
         updateState();
-
         switch (FiringState){
             case 0:
                 // Setup the state needed to fire the balls in the right order
@@ -270,7 +268,7 @@ public class Spindexer {
             case 3: // Fire first ball
                 fireFlickerServo();
                 FiringState = 4;
-            case 4: // Wait for first fire to finish
+            /*case 4: // Wait for first fire to finish
                 if(getFlickerState() == FlickerServoState.RELOADED){
                     FiringState = 5;
                 }
@@ -283,10 +281,9 @@ public class Spindexer {
                     FiringState = 7;
                 }
                 else
-                    break; // Haven't reached the right spindexer state yet, wait
-            case 7: // Fire second ball
+                    break; // Haven't reached the right spindexer state yet, wait*case 7: // Fire second ball
                 fireFlickerServo();
-                FiringState = 4;
+                FiringState = 8;
             case 8: // Wait for first fire to finish
                 if(getFlickerState() == FlickerServoState.RELOADED){
                     FiringState = 9;
@@ -308,8 +305,7 @@ public class Spindexer {
                 if(getFlickerState() == FlickerServoState.RELOADED){
                     FiringState = 100;
                 }
-                break;
-
+                break;*/
             case 100:
                 FiringState = 0;
                 b3BallsFired = true;

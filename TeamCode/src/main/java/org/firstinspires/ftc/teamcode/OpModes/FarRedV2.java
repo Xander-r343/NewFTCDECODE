@@ -74,17 +74,18 @@ public class FarRedV2 extends LinearOpMode {
             turret.update();
             //should this be moved out of the while loop? They are init values, right?
             turret.setServoPoseManaul(0.95);
-            switch (AutoState){
+            switch (AutoState) {
                 case INIT:
-                    turret.setFlywheelToRPM((int)values[1]);
-                    if(turret.flywheelIsUpToSpeed((int)values[1],100)){
-                         AutoState = AutonomousState.SHOOT_1;
+                    turret.setFlywheelToRPM((int) values[1]);
+                    if (turret.flywheelIsUpToSpeed((int) values[1], 100)) {
+                        AutoState = AutonomousState.SHOOT_1;
                     }
                 case SHOOT_1:
-                    if(spindexer.fire3Balls()){
-                        AutoState = AutonomousState.DRIVE_TO_PICKUP_FAR;
+                    if (spindexer.fire3Balls()) {
+                        AutoState = AutonomousState.PARK;
+                        //AutoState = AutonomousState.DRIVE_TO_PICKUP_FAR;
                     }
-                case DRIVE_TO_PICKUP_FAR:
+                /*case DRIVE_TO_PICKUP_FAR:
                     //strafe to far pickup and turn to orient spike mark before pickuup
                     if(pods.holdPosition(101, 35.5,-90,1)){
                         //set intake speed to prepare for ball
@@ -118,13 +119,15 @@ public class FarRedV2 extends LinearOpMode {
                         break;
                     }
 
-            }
 
 
 
 
-        }
 
+        }*/
+                case PARK:
+
+            }}
     }
     public void AutodetectBall(){
         pickupTimer.reset();
