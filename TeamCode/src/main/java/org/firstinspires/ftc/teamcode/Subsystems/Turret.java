@@ -107,6 +107,11 @@ public class    Turret {
         //sets power to given power
         turretRotater.setPower(power);
     }
+    public void resetTurretPosition(){
+        turretRotater.setTargetPosition(0);
+        turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turretRotater.setPower(1);
+    }
     public double getTurretPositionDegrees(){
         return ((turretRotater.getCurrentPosition()/config.ticksPerDegree));
     }
