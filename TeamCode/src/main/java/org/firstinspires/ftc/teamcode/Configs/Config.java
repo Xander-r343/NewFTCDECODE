@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Configs;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Turret;
+
 public class Config {
 //
     // Constants
@@ -54,9 +56,9 @@ public class Config {
 
     //pindexer
     //time for axon spindexer with MAX mk2 to move 1 slot position
-    public final double timePerDegInSeconds =1.2/360;
+    public final double timePerDegInSeconds =5/360;
     //flicker servo time same thing
-    public final double timeForFlickInSeconds = 1;
+    public final double timeForFlickInSeconds = 0.6;
 
 
     public final String firingServoName = "firingServo";
@@ -109,4 +111,5 @@ public class Config {
     public final String newRobotRightFlywheel = "rightFlywheel";
     public final double velScalar = 1.0;
     public final double angularVelScalar = 1.0;
+    public final String turretKey = "turret";
 }

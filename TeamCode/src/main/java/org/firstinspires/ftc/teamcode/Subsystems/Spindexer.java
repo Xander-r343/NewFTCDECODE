@@ -141,10 +141,12 @@ public class Spindexer {
                         currentSpindexerState = SpindexerRotationalState.SLOT_2_PICKUP;;
                         break;
                 }
+                //set eta to very big # after moving to position
+                eta = 5000;
 
             }
         }
-        // Check and reset flicker state based on HW
+        // Check and reset flicker state based on Hardware
 
         if(     (runtime.seconds() > (TimestampFlicker + config.timeForFlickInSeconds)) &&
                 flickerServoState == FlickerServoState.FIRING){
@@ -161,8 +163,8 @@ public class Spindexer {
     public void fireFlickerServo(){
         TimestampFlicker = runtime.seconds();
         if(flickerServoState == FlickerServoState.RELOADED) {
-            firingServo.setPosition(config.firingServoFirePose);
             flickerServoState = FlickerServoState.FIRING;
+            firingServo.setPosition(config.firingServoFirePose);
         }
         else {
             float zero = 0.0f;
@@ -256,7 +258,6 @@ public class Spindexer {
                 secondFirePosition = SpindexerRotationalState.SLOT_1_FIRE;
                 thirdFirePosition = SpindexerRotationalState.SLOT_2_FIRE;
                 FiringState = 1;
-                break;
             case 1: // Start spindexer moving
                 moveSpindexerToPos(firstFirePosition);
                 FiringState = 2;
@@ -270,16 +271,17 @@ public class Spindexer {
             case 3: // Fire first ball
                 fireFlickerServo();
                 FiringState = 4;
-                break;
             case 4: // Wait for first fire to finish
                 if(getFlickerState() == FlickerServoState.RELOADED){
                     FiringState = 5;
                 }
-                break;
-            case 5: // Start spindexer moving state 2
+                else {
+                    break;
+                }
+
+                case 5: // Start spindexer moving state 2
                 moveSpindexerToPos(secondFirePosition);
                 FiringState = 6;
-                break;
             case 6: //check to see if spindexer is finished moving
                 if(currentSpindexerState == secondFirePosition){
                     FiringState = 7;

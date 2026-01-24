@@ -125,7 +125,8 @@ public class    Turret {
         double correctedYPos = aimbots.pods.getY() + (aimbots.pods.getVelY()* XYScalar);
         double correctedHeadingPos = aimbots.pods.getHeading() + (aimbots.pods.getVelH()* angularScalar);
         //set the turret's position to be
-        setTurretPositionDegrees(-Math.toDegrees(Math.toRadians(correctedHeadingPos) + Math.atan2(aimbots.targetX - correctedXPos, aimbots.targetY -correctedYPos)) , 1);
+        setTurretPositionDegrees(-Math.toDegrees(Math.toRadians(correctedHeadingPos) +
+                Math.atan2(aimbots.targetX - correctedXPos, aimbots.targetY -correctedYPos)) , 1);
     }
     /**
      * sets the hood to a specific launch angle
