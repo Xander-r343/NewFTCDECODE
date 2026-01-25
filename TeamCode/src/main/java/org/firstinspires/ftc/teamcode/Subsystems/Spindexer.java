@@ -27,7 +27,9 @@ public class Spindexer {
     private double eta;
     Telemetry telemetry;
     int FiringState = 0;
-
+    int SpindexCounter = 0;
+    int FiringCounter;
+    public boolean isBusy = false;
     public enum color{
         PURPLE, GREEN, UNDECTED
     }
@@ -143,7 +145,7 @@ public class Spindexer {
                 }
                 //set eta to very big # after moving to position
                 eta = 5000;
-
+                isBusy = false;
             }
         }
         // Check and reset flicker state based on Hardware
@@ -161,6 +163,7 @@ public class Spindexer {
 
     }
     public void fireFlickerServo(){
+        FiringCounter ++;
         TimestampFlicker = runtime.seconds();
         if(flickerServoState == FlickerServoState.RELOADED) {
             flickerServoState = FlickerServoState.FIRING;
@@ -189,6 +192,9 @@ public class Spindexer {
      */
     public void moveSpindexerToPos(SpindexerRotationalState newPos)
     {
+        if(!isBusy){
+        isBusy = true;
+        SpindexCounter ++;
         TimestampSpindexer = runtime.seconds();
         eta = getETAtoNewPositionInSeconds(newPos, currentSpindexerState);
         // add in the offset. Maybe call getETAtoNewPositionInSeconds ??
@@ -202,7 +208,7 @@ public class Spindexer {
             case SLOT_0_PICKUP: currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_0_PICKUP; break;
             case SLOT_1_PICKUP: currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_1_PICKUP; break;
             case SLOT_2_PICKUP: currentSpindexerState = SpindexerRotationalState.MOVING_TO_SLOT_2_PICKUP; break;
-            // fill this out
+        }
         }
 
     }
@@ -255,8 +261,8 @@ public class Spindexer {
                 // Setup the state needed to fire the balls in the right order
                 // read motif, program firing order
                 firstFirePosition = SpindexerRotationalState.SLOT_0_FIRE;
-                secondFirePosition = SpindexerRotationalState.SLOT_1_FIRE;
-                thirdFirePosition = SpindexerRotationalState.SLOT_2_FIRE;
+                secondFirePosition = SpindexerRotationalState.SLOT_2_FIRE;
+                thirdFirePosition = SpindexerRotationalState.SLOT_1_FIRE;
                 FiringState = 1;
             case 1: // Start spindexer moving
                 moveSpindexerToPos(firstFirePosition);
@@ -278,25 +284,59 @@ public class Spindexer {
                 else {
                     break;
                 }
-
                 case 5: // Start spindexer moving state 2
                 moveSpindexerToPos(secondFirePosition);
                 FiringState = 6;
+                break;
             case 6: //check to see if spindexer is finished moving
-                if(currentSpindexerState == secondFirePosition){
+                if(currentSpindexerState == secondFirePosition ){
                     FiringState = 7;
                 }
                 else
                     break; // Haven't reached the right spindexer state yet, wait*case 7: // Fire second ball
             case 7:
                 fireFlickerServo();
-                FiringState = 100;
+                FiringState = 8;
+            case 8: // Wait for second fire to finish
+                if(getFlickerState() == FlickerServoState.RELOADED){
+                    FiringState = 9;
+                }
+                else {
+                    break;
+                }
+            case 9: // Start spindexer moving state 2
+                moveSpindexerToPos(thirdFirePosition);
+                FiringState = 10;
+                break;
+            case 10: //check to see if spindexer is finished moving
+                if(currentSpindexerState == thirdFirePosition ){
+                    FiringState = 11;
+                }
+                else
+                    break; // Haven't reached the right spindexer state yet, wait*case 7: // Fire second ball
+            case 11:
+                fireFlickerServo();
+                FiringState = 12;
+            case 12: // Wait for second fire to finish
+                if(getFlickerState() == FlickerServoState.RELOADED){
+                    FiringState = 100;
+                }
+                else {
+                    break;
+                }
             case 100:
                 FiringState = 0;
                 b3BallsFired = true;
                 break;
         }
         telemetry.addData("state", FiringState);
+        telemetry.addData("spindexer", currentSpindexerState);
+        telemetry.addData("counter", SpindexCounter);
+        telemetry.addData("Fire", FiringCounter);
+        telemetry.addData("IS BUSY", isBusy);
+
+
+
         telemetry.update();
         return b3BallsFired;
 

@@ -90,14 +90,15 @@ public class FarRedV2 extends LinearOpMode {
                 case SHOOT_1:
                     //fire 3 balls
                     if(spindexer.fire3Balls()){
-                        AutoState = AutonomousState.DRIVE_TO_PICKUP_FAR;
+                        //AutoState = AutonomousState.DRIVE_TO_PICKUP_FAR;
+                        AutoState = AutonomousState.PARK;
                     }
                     else{
                         //if we haven't fired 3 balls yet, break; and come back in later
                         break;
                     }
 
-                case DRIVE_TO_PICKUP_FAR:
+                /*case DRIVE_TO_PICKUP_FAR:
                     //strafe to far pickup and turn to orient spike mark before pickuup
                     if(pods.holdPosition(101, 35.5,-90,regularPathSpeed)){
                         //set intake speed to prepare for ball
@@ -134,12 +135,12 @@ public class FarRedV2 extends LinearOpMode {
                     }
                 case SHOOT_2:
                     //fire 3 balls code
-                    /*if(spindexer.fire3Balls()){
+                    if(spindexer.fire3Balls()){
                         AutoState = AutonomousState.DRIVE_TO_MIDDLE_PICKUP;
                     }
                     else{
                         break;
-                    }*/
+                    }
                 case DRIVE_TO_MIDDLE_PICKUP:
                     //prepare for the pickup by aligning robot with the spike mark
                     if(pods.holdPosition(102,60,-90,regularPathSpeed)){
@@ -174,10 +175,10 @@ public class FarRedV2 extends LinearOpMode {
                         break;
                     }
                 case SHOOT_3:
-                    //add shooting code here
+                    //add shooting code here*/
                 case PARK:
                     //park outside the far triangle to prepare to open the gate
-                    pods.holdPosition(90,30,0,regularPathSpeed);
+                    //pods.holdPosition(90,30,0,regularPathSpeed);
                     stopAiming = true;
                     turret.setTurretPositionDegrees(0,regularPathSpeed);
 
