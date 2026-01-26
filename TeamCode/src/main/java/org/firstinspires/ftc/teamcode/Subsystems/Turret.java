@@ -24,8 +24,11 @@ import dev.nextftc.control.feedback.PIDCoefficients;
 import dev.nextftc.control.feedforward.BasicFeedforwardParameters;
 @Configurable
 public class    Turret {
-    public static PIDCoefficients pidC = new PIDCoefficients(0.0115, 0.0, 0.0);
-    public static BasicFeedforwardParameters ffCoefs = new BasicFeedforwardParameters(0.0001851, 0.0, 0.006);
+    //public static PIDCoefficients pidC = new PIDCoefficients(0.0115, 0.0, 0.0);
+    public static PIDCoefficients pidC = new PIDCoefficients(0.0145, 0.0, 0.0);
+
+    //public static BasicFeedforwardParameters ffCoefs = new BasicFeedforwardParameters(0.0001851, 0.0, 0.006);
+    public static BasicFeedforwardParameters ffCoefs = new BasicFeedforwardParameters(0.00000637755, 0.0, 0.0075);
 
 
     private Config config;
@@ -92,7 +95,7 @@ public class    Turret {
 
     public void setTurretPositionDegrees(double degrees, double power){
         int targetPose = 0;
-        if(degrees <=-135 && degrees >= -135) {
+        if(degrees <=135 && degrees >= -135) {
             targetPose = (int)degrees;
         }
         else if(degrees < -135){
@@ -101,12 +104,13 @@ public class    Turret {
         else if(degrees > 135){
             targetPose = 135;
         }
-        turretRotater.setTargetPosition(Math.round(targetPose));
+        turretRotater.setTargetPosition(targetPose);
         //sets the motor to runnnn
         turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //sets power to given power
         turretRotater.setPower(power);
     }
+
     public void resetTurretPosition(){
         turretRotater.setTargetPosition(0);
         turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -117,6 +121,10 @@ public class    Turret {
     }
     public void turretSetIdealAngleUsingLLandPods(){
         setTurretPositionDegrees(aimbots.getIdealAngle(),1);
+        telemetry.addData("motor", turretRotater.getTargetPosition()/28);
+        telemetry.addData("aimbots angle", aimbots.getIdealAngle());
+
+        telemetry.update();
     }
     public void continuouslyAim(boolean trueOrFalse){
         aimContinuously = trueOrFalse;
@@ -133,6 +141,7 @@ public class    Turret {
         setTurretPositionDegrees(-Math.toDegrees(Math.toRadians(correctedHeadingPos) +
                 Math.atan2(aimbots.targetX - correctedXPos, aimbots.targetY -correctedYPos)) , 1);
     }
+
     /**
      * sets the hood to a specific launch angle
      * @param givenLaunchAngle is the desired launch angle
@@ -157,6 +166,7 @@ public class    Turret {
     public void setFlywheelToTPS(int tps){
         controlSystem.setGoal(new KineticState(0.0, tps));
     }
+
     public void update(){
         result = limelight.getLatestResult();
         aimbots.update();
@@ -199,18 +209,7 @@ public class    Turret {
     public void setIntakeSpeed(double speed){
         intake.setPower(speed);
     }
-    public double getRightCurrent(){
-        return rightFlywheelMotor.getCurrent(CurrentUnit.MILLIAMPS);
-    }
-    public double getLeftCurrent(){
-        return leftFlywheelMotor.getCurrent(CurrentUnit.MILLIAMPS);
-    }
-    public int getMotif(){
-        return 0;
-    }
-    public double getHoodDouble(){
-        return rightHoodServo.getPosition();
-    }
+
 
 
 

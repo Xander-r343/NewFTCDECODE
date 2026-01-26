@@ -14,7 +14,7 @@ import dev.nextftc.control.KineticState;
 import dev.nextftc.control.feedback.PIDCoefficients;
 import dev.nextftc.control.feedforward.BasicFeedforwardParameters;
 
-@Disabled
+@TeleOp
 @Configurable
 public class Test extends OpMode {
     public Gamepad currentGamepad1 = new Gamepad();
@@ -30,7 +30,10 @@ public class Test extends OpMode {
         f1M.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         f2M.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
-
+    /*
+    public static PIDCoefficients pidC = new PIDCoefficients(0.0145, 0.0, 0.0);
+    public static BasicFeedforwardParameters ffCoefs = new BasicFeedforwardParameters(0.00000637755, 0.0, 0.0075);
+*/
     public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.0, 0.0, 0.0);
     public static BasicFeedforwardParameters ff = new BasicFeedforwardParameters(0.0,0.0,0.0);
     public static double target = 0.0;
@@ -56,7 +59,9 @@ public class Test extends OpMode {
         if(currentGamepad1.b && !previousGamepad1.b) {
             pid = !pid;
         }
-
+        if(currentGamepad1.a && !previousGamepad1.a){
+            controlSystem.setGoal(new KineticState(0.0, 3200));
+        }
         telemetry.addData("power", f1M.getPower());
         telemetry.addData("velocity", f1M.getVelocity());
         telemetry.addData("pid", pid);

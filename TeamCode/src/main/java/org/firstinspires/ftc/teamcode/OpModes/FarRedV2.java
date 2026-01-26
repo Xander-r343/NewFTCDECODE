@@ -79,10 +79,16 @@ public class FarRedV2 extends LinearOpMode {
             turret.update();
             //should this be moved out of the while loop? They are init values, right?
             turret.setServoPoseManaul(0.95);
+            //if(!stopAiming)
+            //{
+                turret.setFlywheelToRPM((int)values[1]);
+                turret.turretSetIdealAngleUsingLLandPods();
+            //}
             switch (AutoState) {
                 case INIT:
                     if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED){
                         AutoState = AutonomousState.SHOOT_1;
+                        break;
                     }
                     else{
                         break;
@@ -92,15 +98,16 @@ public class FarRedV2 extends LinearOpMode {
                     if(spindexer.fire3Balls()){
                         //AutoState = AutonomousState.DRIVE_TO_PICKUP_FAR;
                         AutoState = AutonomousState.PARK;
+                        break;
                     }
                     else{
                         //if we haven't fired 3 balls yet, break; and come back in later
                         break;
                     }
 
-                /*case DRIVE_TO_PICKUP_FAR:
+                    /*case DRIVE_TO_PICKUP_FAR:
                     //strafe to far pickup and turn to orient spike mark before pickuup
-                    if(pods.holdPosition(101, 35.5,-90,regularPathSpeed)){
+                    if(pods.holdPosition(101, 35.5,0, regularPathSpeed)){
                         //set intake speed to prepare for ball
                         turret.setIntakeSpeed(1.0);
                         //go to next state to actually pickup
@@ -175,13 +182,13 @@ public class FarRedV2 extends LinearOpMode {
                         break;
                     }
                 case SHOOT_3:
-                    //add shooting code here*/
+                    //add shooting code here
                 case PARK:
                     //park outside the far triangle to prepare to open the gate
-                    //pods.holdPosition(90,30,0,regularPathSpeed);
+                    pods.holdPosition(90,30,0,regularPathSpeed);
                     stopAiming = true;
                     turret.setTurretPositionDegrees(0,regularPathSpeed);
-
+*/
             }
         }
 

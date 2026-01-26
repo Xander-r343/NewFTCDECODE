@@ -329,17 +329,20 @@ public class Spindexer {
                 b3BallsFired = true;
                 break;
         }
-        telemetry.addData("state", FiringState);
+        /*telemetry.addData("state", FiringState);
         telemetry.addData("spindexer", currentSpindexerState);
         telemetry.addData("counter", SpindexCounter);
         telemetry.addData("Fire", FiringCounter);
-        telemetry.addData("IS BUSY", isBusy);
+        telemetry.addData("IS BUSY", isBusy);*/
 
 
 
         telemetry.update();
         return b3BallsFired;
 
+    }
+    public void setPositionManualOverride(double position){
+        spindexerServo.setPosition(position);
     }
 
 

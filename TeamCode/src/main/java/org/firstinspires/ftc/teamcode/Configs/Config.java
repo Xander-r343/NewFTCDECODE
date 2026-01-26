@@ -74,13 +74,13 @@ public class Config {
     public final String sl2 = "slot2";
 
     //TODO if the ratio of the gears is 40:30 the servo needs to be 270degress of rotation
-    public static final double slot0FiringPosition = 0.725;
+    public static final double slot0FiringPosition = 0.75;
     public static final double slot1FiringPosition = 0;
-    public static final double slot2FiringPosition = 0.35;
+    public static final double slot2FiringPosition = 0.38;
 
-    public static final double slot0Pickup = 0.15;
-    public static final double slot1Pickup = 0.5;
-    public static final double slot2Pickup = 0.9;
+    public static final double slot0Pickup = 0.20;
+    public static final double slot1Pickup = 0.55;
+    public static final double slot2Pickup = 0.95;
     //degrees
     public final double slot0FiringPositionDegrees = 257.375;
     public final double slot1FiringPositionDegrees = 0.0;
