@@ -112,4 +112,10 @@ public class Config {
     public final double velScalar = 1.0;
     public final double angularVelScalar = 1.0;
     public final String turretKey = "turret";
+    //pgp is 22
+    public static final int PGP = 22;
+    //gpp is 21
+    public static final int GPP = 21;
+    //ppg is 23
+    public static final int PPG = 23;
 }

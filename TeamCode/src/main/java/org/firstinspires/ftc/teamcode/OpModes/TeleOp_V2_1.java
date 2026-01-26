@@ -113,9 +113,14 @@ public class TeleOp_V2_1 extends OpMode {
         //fire ball controls (flicking servo)
         //fire a single ball and rotate to the next slot afterwards
         if (gamepad2.left_trigger > 0.8) {
-            spindexer.fire3Balls();
+            spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_0_FIRE, Spindexer.SpindexerRotationalState.SLOT_1_FIRE,
+                                 Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP);
         }
-        if(currentGamepad2.left_bumper && !previousGamepad2.dpad_left && !isFlicking && (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE ||spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE)){
+        //flicker manual controls
+        if(currentGamepad2.left_bumper && !previousGamepad2.dpad_left && !isFlicking &&
+                       (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_FIRE ||
+                        spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_FIRE ||
+                        spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_FIRE)){
             spindexer.fireFlickerServo();
             justFired = true;
             firingTimer.reset();

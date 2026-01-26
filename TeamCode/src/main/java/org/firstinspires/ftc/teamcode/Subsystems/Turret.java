@@ -40,6 +40,7 @@ public class    Turret {
     private DcMotor intake;
     private Limelight3A limelight;
     private LLResult result;
+    private LLResult fidicual;
     Aimbots aimbots;
     boolean aimContinuously;
     Telemetry telemetry;
@@ -165,6 +166,7 @@ public class    Turret {
 
     public void update(){
         result = limelight.getLatestResult();
+
         aimbots.update();
         if(aimContinuously){
             turretSetIdealAngleUsingLLandPods();
@@ -204,6 +206,10 @@ public class    Turret {
     }
     public void setIntakeSpeed(double speed){
         intake.setPower(speed);
+    }
+    public int getFidicualResults(){
+        return result.getFiducialResults().getFirst().getFiducialId();
+
     }
 
 

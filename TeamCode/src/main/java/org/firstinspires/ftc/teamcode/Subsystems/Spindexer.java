@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 
+import androidx.annotation.NonNull;
+
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -48,10 +50,11 @@ public class Spindexer {
         MOVING_TO_SLOT_2_FIRE,
         INIT
     }
-
+    //fire 3 balls states
     SpindexerRotationalState firstFirePosition = SpindexerRotationalState.SLOT_0_FIRE;
     SpindexerRotationalState secondFirePosition = SpindexerRotationalState.SLOT_1_FIRE;
     SpindexerRotationalState thirdFirePosition = SpindexerRotationalState.SLOT_2_FIRE;
+    SpindexerRotationalState endingSequencePosition = SpindexerRotationalState.SLOT_2_PICKUP;
 
     private double[] servoAngleLookupTable = {
                 Config.slot0Pickup, //SLOT0PICKUP,
@@ -252,18 +255,21 @@ public class Spindexer {
             return color.UNDECTED;
     }
     //commands
-    public boolean fire3Balls(){
+    public boolean fire3Balls(@NonNull SpindexerRotationalState givenFirstFirePosition, @NonNull SpindexerRotationalState givenSecondFirePosition,
+                              @NonNull SpindexerRotationalState givenThirdirePosition,  @NonNull SpindexerRotationalState givenEndingPosition){
 
-        boolean b3BallsFired = false;
+        boolean ThreeBallsFired = false;
         // ensure we have the latest spindexer and flicker state positions
         updateState();
         switch (FiringState){
             case 0:
                 // Setup the state needed to fire the balls in the right order
                 // read motif, program firing order
-                firstFirePosition = SpindexerRotationalState.SLOT_0_FIRE;
-                secondFirePosition = SpindexerRotationalState.SLOT_1_FIRE;
-                thirdFirePosition = SpindexerRotationalState.SLOT_2_FIRE;
+                firstFirePosition = givenFirstFirePosition;
+                secondFirePosition = givenSecondFirePosition;
+                thirdFirePosition = givenThirdirePosition;
+                endingSequencePosition = givenEndingPosition;
+
                 FiringState = 1;
             case 1: // Start spindexer moving
                 moveSpindexerToPos(firstFirePosition);
@@ -327,19 +333,15 @@ public class Spindexer {
                 }
             case 100:
                 FiringState = 0;
-                b3BallsFired = true;
+                moveSpindexerToPos(endingSequencePosition);
+                ThreeBallsFired = true;
                 break;
         }
-        /*telemetry.addData("state", FiringState);
-        telemetry.addData("spindexer", currentSpindexerState);
-        telemetry.addData("counter", SpindexCounter);
-        telemetry.addData("Fire", FiringCounter);
-        telemetry.addData("IS BUSY", isBusy);*/
 
 
 
         telemetry.update();
-        return b3BallsFired;
+        return ThreeBallsFired;
 
     }
     public void setPositionManualOverride(double position){
