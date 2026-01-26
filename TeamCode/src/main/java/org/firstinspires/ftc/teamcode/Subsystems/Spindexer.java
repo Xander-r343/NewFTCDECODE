@@ -253,6 +253,7 @@ public class Spindexer {
     }
     //commands
     public boolean fire3Balls(){
+
         boolean b3BallsFired = false;
         // ensure we have the latest spindexer and flicker state positions
         updateState();
@@ -261,8 +262,8 @@ public class Spindexer {
                 // Setup the state needed to fire the balls in the right order
                 // read motif, program firing order
                 firstFirePosition = SpindexerRotationalState.SLOT_0_FIRE;
-                secondFirePosition = SpindexerRotationalState.SLOT_2_FIRE;
-                thirdFirePosition = SpindexerRotationalState.SLOT_1_FIRE;
+                secondFirePosition = SpindexerRotationalState.SLOT_1_FIRE;
+                thirdFirePosition = SpindexerRotationalState.SLOT_2_FIRE;
                 FiringState = 1;
             case 1: // Start spindexer moving
                 moveSpindexerToPos(firstFirePosition);

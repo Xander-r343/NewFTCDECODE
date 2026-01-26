@@ -79,14 +79,14 @@ public class FarRedV2 extends LinearOpMode {
             turret.update();
             //should this be moved out of the while loop? They are init values, right?
             turret.setServoPoseManaul(0.95);
-            //if(!stopAiming)
-            //{
-                turret.setFlywheelToRPM((int)values[1]);
+            if(!stopAiming)
+            {
+                turret.setFlywheelToRPM((int)(values[1]));
                 turret.turretSetIdealAngleUsingLLandPods();
-            //}
+            }
             switch (AutoState) {
                 case INIT:
-                    if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED){
+                    if(spindexer.getFlickerState() == Spindexer.FlickerServoState.RELOADED && runtime.seconds() > 2){
                         AutoState = AutonomousState.SHOOT_1;
                         break;
                     }
@@ -105,7 +105,7 @@ public class FarRedV2 extends LinearOpMode {
                         break;
                     }
 
-                    /*case DRIVE_TO_PICKUP_FAR:
+                    case DRIVE_TO_PICKUP_FAR:
                     //strafe to far pickup and turn to orient spike mark before pickuup
                     if(pods.holdPosition(101, 35.5,0, regularPathSpeed)){
                         //set intake speed to prepare for ball
@@ -183,12 +183,19 @@ public class FarRedV2 extends LinearOpMode {
                     }
                 case SHOOT_3:
                     //add shooting code here
+                    if(spindexer.fire3Balls()){
+                        AutoState = AutonomousState.DRIVE_TO_MIDDLE_PICKUP;
+                    }
+                    else{
+                        break;
+                    }
+
                 case PARK:
                     //park outside the far triangle to prepare to open the gate
                     pods.holdPosition(90,30,0,regularPathSpeed);
                     stopAiming = true;
                     turret.setTurretPositionDegrees(0,regularPathSpeed);
-*/
+
             }
         }
 

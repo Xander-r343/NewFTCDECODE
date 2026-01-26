@@ -89,33 +89,29 @@ public class    Turret {
 
     /**
      * sets the turret to be a specific angle
-     * @param degrees the wanted angle from the perspective of the field
+     * @param AngleOfTarget the wanted angle from the perspective of the field
      * @param power the power to move turret at
      */
 
-    public void setTurretPositionDegrees(double degrees, double power){
+    public void setTurretPositionDegrees(double AngleOfTarget, double power){
         int targetPose = 0;
-        if(degrees <=135 && degrees >= -135) {
-            targetPose = (int)degrees;
+        if(aimbots.pods.getHeading() - AngleOfTarget <=135 && aimbots.pods.getHeading() -AngleOfTarget  >= -135) {
+            targetPose = (int)AngleOfTarget;
         }
-        else if(degrees < -135){
+        else if(aimbots.pods.getHeading() - AngleOfTarget < -135){
             targetPose = -135;
         }
-        else if(degrees > 135){
+        else if(aimbots.pods.getHeading() -AngleOfTarget  > 135){
             targetPose = 135;
         }
-        turretRotater.setTargetPosition(targetPose);
+        turretRotater.setTargetPosition((int)((targetPose - aimbots.pods.getHeading() )*config.ticksPerDegree));
         //sets the motor to runnnn
         turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //sets power to given power
         turretRotater.setPower(power);
     }
 
-    public void resetTurretPosition(){
-        turretRotater.setTargetPosition(0);
-        turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        turretRotater.setPower(1);
-    }
+
     public double getTurretPositionDegrees(){
         return ((turretRotater.getCurrentPosition()/config.ticksPerDegree));
     }
