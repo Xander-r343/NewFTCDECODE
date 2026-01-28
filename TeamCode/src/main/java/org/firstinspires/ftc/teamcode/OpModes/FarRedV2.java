@@ -255,6 +255,7 @@ public class FarRedV2 extends LinearOpMode {
                     stopAiming = true;
                     turret.setTurretPositionDegrees(0,regularPathSpeed);
                     while(opModeIsActive()){
+                        //shut off flywheel
                         turret.setFlywheelToRPM(0);
                     }
 
