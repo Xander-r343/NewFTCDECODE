@@ -26,7 +26,8 @@ import dev.nextftc.control.feedback.PIDCoefficients;
 import dev.nextftc.control.feedforward.BasicFeedforwardParameters;
 @Configurable
 public class    Turret {
-    public static PIDCoefficients pidC = new PIDCoefficients(0.000161, 0.0, 0.0);
+    public static PIDCoefficients pidC = new PIDCoefficients(0.011, 0.0, 0.0);
+
     public static BasicFeedforwardParameters ffCoefs = new BasicFeedforwardParameters(0.000006493506494, 0.0, 0.03);
 
 
@@ -127,17 +128,12 @@ public class    Turret {
     }
     public void setTurretUsingVelAim(){
         //scalars
-        double XYScalar = 1.0;
-        double angularScalar = 1.0;
+        double XYScalar = 0.1;
         //correct the heading, x, and y controllers based on current velocity
         double correctedXPos = aimbots.pods.getX() + (aimbots.pods.getVelX()* XYScalar);
         double correctedYPos = aimbots.pods.getY() + (aimbots.pods.getVelY()* XYScalar);
-        telemetry.addData("", -Math.toDegrees(
-                Math.atan2(aimbots.targetX - correctedXPos, aimbots.targetY -correctedYPos)));
-        telemetry.update();
-        //set the turret's position to be
-        /*setTurretPositionDegrees(-Math.toDegrees(Math.toRadians(correctedHeadingPos) +
-                Math.atan2(aimbots.targetX - correctedXPos, aimbots.targetY -correctedYPos)) , 1);*/
+        setTurretPositionDegrees(-Math.toDegrees(Math.atan2(aimbots.targetX- correctedXPos, correctedYPos)),1);
+
     }
 
     /**

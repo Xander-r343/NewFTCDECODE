@@ -254,6 +254,7 @@ public class TeleOp_V2_1 extends OpMode {
         //update
         values = AimbotV2.getValues(aimbots.calculateSideLengthUsingPods());
         telemetry.addData("e", turret.getRpm());
+        telemetry.addData("target vel", values[1]);
         telemetry.addData("heading", aimbots.pods.getHeading());
         telemetry.addData("x", aimbots.pods.getX());
         telemetry.addData("y", aimbots.pods.getY());

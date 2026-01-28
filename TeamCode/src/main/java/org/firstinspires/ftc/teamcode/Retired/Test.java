@@ -35,7 +35,7 @@ public class Test extends OpMode {
     public static BasicFeedforwardParameters ffCoefs = new BasicFeedforwardParameters(0.00000637755, 0.0, 0.0075);
 */
     public static PIDCoefficients pidCoefficients = new PIDCoefficients(0.0, 0.0, 0.0);
-    public static BasicFeedforwardParameters ff = new BasicFeedforwardParameters(0.0,0.0,0.0);
+    public static BasicFeedforwardParameters ff = new BasicFeedforwardParameters(0.000006493506494,0.0,0.0);
     public static double target = 0.0;
 
     private ControlSystem controlSystem = ControlSystem.builder()
@@ -64,6 +64,8 @@ public class Test extends OpMode {
         }
         telemetry.addData("power", f1M.getPower());
         telemetry.addData("velocity", f1M.getVelocity());
+        telemetry.addData("rpm", (f1M.getVelocity()*28)/60);
+        telemetry.addData("target rpm", (target*28)/60);
         telemetry.addData("pid", pid);
         telemetry.addData("target", target);
         telemetry.update();

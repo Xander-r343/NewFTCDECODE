@@ -5,12 +5,13 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 
 @Configurable
-@Disabled
+@TeleOp
 public class Auto extends OpMode {
     private MecanumDrivetrain drive;
     private OdoPods pods;

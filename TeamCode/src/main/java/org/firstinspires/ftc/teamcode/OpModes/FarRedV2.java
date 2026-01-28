@@ -41,9 +41,11 @@ public class FarRedV2 extends LinearOpMode {
     boolean stopAiming = false;
     boolean preparedForPickup = false;
     boolean wentToTheWall = false;
-    double pickupBallSpeed = 0.4;
+    double pickupBallSpeed = 0.28;
     double regularPathSpeed = 1.0;
     public int motifNumber = 0;
+    boolean ball1pickedUp = false;
+    boolean ball2pickedUp = false;
 
     enum  AutonomousState{
         SCAN_APRILTAG, INIT, SHOOT_1, DRIVE_TO_PICKUP_FAR, PICKUP_BALL_FAR_PICKUP, DRIVE_BACK_FROM_FAR_PICKUP,
@@ -106,7 +108,7 @@ public class FarRedV2 extends LinearOpMode {
                     //fire 3 balls
                     if(spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_0_FIRE, Spindexer.SpindexerRotationalState.SLOT_1_FIRE,
                             Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)){
-                        AutoState = AutonomousState.PARK;
+                        AutoState = AutonomousState.DRIVE_TO_PICKUP_FAR;
                         break;
                     }
                     else{
@@ -115,22 +117,47 @@ public class FarRedV2 extends LinearOpMode {
                     }
                     case DRIVE_TO_PICKUP_FAR:
                     //strafe to far pickup and turn to orient spike mark before pickuup
-                    if(pods.holdPosition(101, 35.5,0, regularPathSpeed)){
+                    if(pods.holdPosition(101, 37.5,-90, regularPathSpeed)){
                         //set intake speed to prepare for ball
                         turret.setIntakeSpeed(1.0);
                         //go to next state to actually pickup
                         AutoState = AutonomousState.PICKUP_BALL_FAR_PICKUP;
+                        break;
                     }else{
-                        pods.holdPosition(101, 35.5,-90,regularPathSpeed);
                         break;
                     }
                 case PICKUP_BALL_FAR_PICKUP:
                     //drive robot into the 3 balls and pick them up
-                    if(pods.holdPosition(135, 35.5, -90, pickupBallSpeed)){
+                    if(pods.holdPosition(135, 35.5, -90, pickupBallSpeed-0.06)){
                         AutoState = AutonomousState.DRIVE_BACK_FROM_FAR_PICKUP;
                     }else{
                         //auto spin spindexer to next state after detecting a ball
-                        AutodetectBall();
+                        if (spindexer.getBallColorImmediately() != Spindexer.color.UNDECTED && pickupTimer.seconds() > 0.3) {
+                            //if the spindexer state is 0 and we see a ball move to 1
+                            if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_PICKUP ) {
+                                pickupTimer.reset();
+                                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
+                                pods.update();
+                                break;
+                            }
+                            //if the spindexer state is 1 and we see a ball move to 2
+                            else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_PICKUP&& pickupTimer.seconds() > 0.21) {
+                                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_PICKUP);
+                                pickupTimer.reset();
+                                pods.update();
+                                break;
+                            }
+                            //if the spindexer state is 2 and we see a then end this pickup
+                            else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_PICKUP&& pickupTimer.seconds() > 0.3) {
+                                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
+                                AutoState = AutonomousState.DRIVE_BACK_FROM_FAR_PICKUP;
+                                turret.setIntakeSpeed(0);
+                                break;
+                            }
+                            if(pickupTimer.seconds() > 2){
+                                AutoState = AutonomousState.DRIVE_BACK_FROM_FAR_PICKUP;
+                            }
+                        }
                         //make sure odo is driving
                         pods.holdPosition(135, 35.5, -90, pickupBallSpeed);
                         break;
@@ -143,7 +170,7 @@ public class FarRedV2 extends LinearOpMode {
                     }
                     else{
                         //update turret position
-                        turret.setTurretUsingVelAim();
+                        turret.turretSetIdealAngleUsingLLandPods();
                         //reset odometry position
                         pods.holdPosition(90,14,-90,regularPathSpeed);
                         break;
@@ -157,7 +184,7 @@ public class FarRedV2 extends LinearOpMode {
                     else{
                         break;
                     }
-                case DRIVE_TO_MIDDLE_PICKUP:
+                    case DRIVE_TO_MIDDLE_PICKUP:
                     //prepare for the pickup by aligning robot with the spike mark
                     if(pods.holdPosition(102,60,-90,regularPathSpeed)){
 
@@ -173,18 +200,40 @@ public class FarRedV2 extends LinearOpMode {
                     if(pods.holdPosition(134,60,-90,pickupBallSpeed)){
                         //stop intake when position is reached
                         turret.setIntakeSpeed(0);
-                        AutoState = AutonomousState.PICKUP_BALL_MIDDLE_PICKUP;
+                        AutoState = AutonomousState.DRIVE_BACK_FROM_MIDDLE_PICKUP;
                     }
                     else{
                         //if we haven't reached the end of the path yet, auto rotate spindexer and hold odometry
-                        AutodetectBall();
-                        pods.holdPosition(134,60,-90,pickupBallSpeed);
+                        if (spindexer.getBallColorImmediately() != Spindexer.color.UNDECTED && pickupTimer.seconds() > 0.3) {
+                            //if the spindexer state is 0 and we see a ball move to 1
+                            if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_PICKUP ) {
+                                pickupTimer.reset();
+                                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
+                                pods.update();
+                                break;
+                            }
+                            //if the spindexer state is 1 and we see a ball move to 2
+                            else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_PICKUP&& pickupTimer.seconds() > 0.3) {
+                                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_PICKUP);
+                                pickupTimer.reset();
+                                pods.update();
+                                break;
+                            }
+                            //if the spindexer state is 2 and we see a then end this pickup
+                            else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_PICKUP&& pickupTimer.seconds() > 0.4) {
+                                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
+                                AutoState = AutonomousState.DRIVE_BACK_FROM_FAR_PICKUP;
+                                turret.setIntakeSpeed(0);
+                                break;
+                            }
+                        }
+                        //make sure odo is driving
                         break;
                     }
                 case DRIVE_BACK_FROM_MIDDLE_PICKUP:
                     //drive back to fire ball
                     if(pods.holdPosition(90,14,-90,regularPathSpeed)){
-                        AutoState = AutonomousState.PICKUP_BALL_MIDDLE_PICKUP;
+                        AutoState = AutonomousState.SHOOT_3;
                     }
                     else{
                         pods.holdPosition(90,14,-90,regularPathSpeed);
@@ -194,7 +243,7 @@ public class FarRedV2 extends LinearOpMode {
                     //add shooting code here
                     if(spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_0_FIRE, Spindexer.SpindexerRotationalState.SLOT_1_FIRE,
                             Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)){
-                        AutoState = AutonomousState.DRIVE_TO_MIDDLE_PICKUP;
+                        AutoState = AutonomousState.PARK;
                     }
                     else{
                         break;
@@ -205,32 +254,13 @@ public class FarRedV2 extends LinearOpMode {
                     pods.holdPosition(90,30,0,regularPathSpeed);
                     stopAiming = true;
                     turret.setTurretPositionDegrees(0,regularPathSpeed);
+                    while(opModeIsActive()){
+                        turret.setFlywheelToRPM(0);
+                    }
 
             }
         }
 
     }
-    public void AutodetectBall(){
-        pickupTimer.reset();
-        //logic to rotate the spindexer to the next slot when a ball has beeen detected
-        if (spindexer.getBallColorImmediately() != Spindexer.color.UNDECTED) {
-            //if the spindexer state is 0 and we see a ball move to 1
-            if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_0_PICKUP) {
-                pickupTimer.reset();
-                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_1_PICKUP);
-                pods.update();
-            }
-            //if the spindexer state is 1 and we see a ball move to 2
-            else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_PICKUP && pickupTimer.seconds() > 0.3) {
-                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_2_PICKUP);
-                pickupTimer.reset();
-                pods.update();
-            }
-            //if the spindexer state is 2 and we see a then end this pickup
-            else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_2_PICKUP && pickupTimer.seconds() > 0.3) {
-                spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
-                turret.setIntakeSpeed(0);
-            }
-        }
-    }
+
 }
