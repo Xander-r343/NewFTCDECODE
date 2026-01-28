@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -24,11 +26,8 @@ import dev.nextftc.control.feedback.PIDCoefficients;
 import dev.nextftc.control.feedforward.BasicFeedforwardParameters;
 @Configurable
 public class    Turret {
-    //public static PIDCoefficients pidC = new PIDCoefficients(0.0115, 0.0, 0.0);
-    public static PIDCoefficients pidC = new PIDCoefficients(0.0145, 0.0, 0.0);
-
-    //public static BasicFeedforwardParameters ffCoefs = new BasicFeedforwardParameters(0.0001851, 0.0, 0.006);
-    public static BasicFeedforwardParameters ffCoefs = new BasicFeedforwardParameters(0.00000637755, 0.0, 0.0075);
+    public static PIDCoefficients pidC = new PIDCoefficients(0.000161, 0.0, 0.0);
+    public static BasicFeedforwardParameters ffCoefs = new BasicFeedforwardParameters(0.000006493506494, 0.0, 0.03);
 
 
     private Config config;
@@ -133,10 +132,12 @@ public class    Turret {
         //correct the heading, x, and y controllers based on current velocity
         double correctedXPos = aimbots.pods.getX() + (aimbots.pods.getVelX()* XYScalar);
         double correctedYPos = aimbots.pods.getY() + (aimbots.pods.getVelY()* XYScalar);
-        double correctedHeadingPos = aimbots.pods.getHeading() + (aimbots.pods.getVelH()* angularScalar);
+        telemetry.addData("", -Math.toDegrees(
+                Math.atan2(aimbots.targetX - correctedXPos, aimbots.targetY -correctedYPos)));
+        telemetry.update();
         //set the turret's position to be
-        setTurretPositionDegrees(-Math.toDegrees(Math.toRadians(correctedHeadingPos) +
-                Math.atan2(aimbots.targetX - correctedXPos, aimbots.targetY -correctedYPos)) , 1);
+        /*setTurretPositionDegrees(-Math.toDegrees(Math.toRadians(correctedHeadingPos) +
+                Math.atan2(aimbots.targetX - correctedXPos, aimbots.targetY -correctedYPos)) , 1);*/
     }
 
     /**
@@ -208,8 +209,12 @@ public class    Turret {
         intake.setPower(speed);
     }
     public int getFidicualResults(){
-        return result.getFiducialResults().getFirst().getFiducialId();
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return result.getFiducialResults().getFirst().getFiducialId();
+        }
+        else{
+            return 0;
+        }
     }
 
 
