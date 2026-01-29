@@ -20,6 +20,8 @@ import org.firstinspires.ftc.teamcode.Configs.Config;
 import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 
 
+import java.util.List;
+
 import dev.nextftc.control.ControlSystem;
 import dev.nextftc.control.KineticState;
 import dev.nextftc.control.feedback.PIDCoefficients;
@@ -205,12 +207,25 @@ public class    Turret {
         intake.setPower(speed);
     }
     public int getFidicualResults(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            return result.getFiducialResults().getFirst().getFiducialId();
+        List<LLResultTypes.FiducialResult> r = limelight.getLatestResult().getFiducialResults();
+        if (r.isEmpty()) return 0;
+
+        LLResultTypes.FiducialResult target = null;
+        for (LLResultTypes.FiducialResult i: r) {
+            if (i != null &&(i.getFiducialId() ==  Config.GPP || i.getFiducialId() ==  Config.PGP || i.getFiducialId() == Config.PPG)) {
+                if(i.getFiducialId() ==  Config.PPG){
+                    return Config.PPG;
+                }
+                else if(i.getFiducialId() ==  Config.PGP){
+                    return Config.PGP;
+
+                }
+                else if(i.getFiducialId() ==  Config.GPP){
+                    return Config.GPP;
+                }
+            }
         }
-        else{
-            return 0;
-        }
+        return 0;
     }
 
 

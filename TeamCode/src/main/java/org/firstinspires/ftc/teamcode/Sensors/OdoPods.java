@@ -25,19 +25,19 @@ public class OdoPods {
 
     // Drivetrain reference for setting motor powers
     private MecanumDrivetrain drivetrain;
-    public static double kph = -0.042;
+    public static double kph = -0.048;
     public static double kdh = 0.01;
-    public static double kfh = 0.02;
+    public static double kfh = 0.025;
     public static double klh = 0.033;
 
-    public static double kpd = 0.025;
+    public static double kpd = 0.031;
     public static double kdd = 0;
-    public static double kfd = 0.03;
+    public static double kfd = 0.04;
     public static double kld = 0.07;
 
-    public static double kps = 0.055;
+    public static double kps = 0.059;
     public static double kds = 0;
-    public static double kfs = 0.019;
+    public static double kfs = 0.03;
     public static double kls = 0;
 
     /*public static double kph = -0.015;
@@ -191,7 +191,7 @@ public class OdoPods {
         goToPosition(x, y, h, currentX, currentY, currentHeading, speed);
 
         // Use a tighter tolerance for checking if the target is reached
-        double positionTolerance = 3;  // Adjust this as needed for your robot's precision
+        double positionTolerance = 1.5;  // Adjust this as needed for your robot's precision
         double headingTolerance = 3;    // Tolerance for heading in degrees
 
         boolean positionReached = Math.abs(currentX - x) < positionTolerance &&

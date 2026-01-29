@@ -41,9 +41,9 @@ public class FarRedV2 extends LinearOpMode {
     boolean stopAiming = false;
     boolean preparedForPickup = false;
     boolean wentToTheWall = false;
-    double pickupBallSpeed = 0.28;
+    double pickupBallSpeed = 0.24;
     double regularPathSpeed = 1.0;
-    public int motifNumber = 0;
+    public int motifNumber = Config.PPG;
     boolean ball1pickedUp = false;
     boolean ball2pickedUp = false;
 
@@ -91,7 +91,7 @@ public class FarRedV2 extends LinearOpMode {
             turret.setServoPoseManaul(0.95);
             if(!stopAiming)
             {
-                turret.setFlywheelToRPM((int)(values[1]));
+                turret.setFlywheelToRPM(3000);
                 turret.turretSetIdealAngleUsingLLandPods();
             }
             switch (AutoState) {
@@ -106,29 +106,55 @@ public class FarRedV2 extends LinearOpMode {
                     }
                 case SHOOT_1:
                     //fire 3 balls
-                    if(spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_0_FIRE, Spindexer.SpindexerRotationalState.SLOT_1_FIRE,
-                            Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)){
-                        AutoState = AutonomousState.DRIVE_TO_PICKUP_FAR;
-                        break;
+                    //load green in 0 and 2 purples in the other slots TODO
+                    if(motifNumber == Config.GPP) {
+                        if (spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_0_FIRE, Spindexer.SpindexerRotationalState.SLOT_1_FIRE,
+                                Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)) {
+                            AutoState = AutonomousState.DRIVE_TO_PICKUP_FAR;
+                            break;
+                        }
+                        else{
+                            //if we haven't fired 3 balls yet, break; and come back in later
+                            break;
+                        }
                     }
-                    else{
-                        //if we haven't fired 3 balls yet, break; and come back in later
-                        break;
+                    else if(motifNumber == Config.PGP) {
+                        if (spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_1_FIRE, Spindexer.SpindexerRotationalState.SLOT_0_FIRE,
+                                Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)) {
+                            AutoState = AutonomousState.DRIVE_TO_PICKUP_FAR;
+                            break;
+                        }
+                        else{
+                            //if we haven't fired 3 balls yet, break; and come back in later
+                            break;
+                        }
+                    }
+                    else if(motifNumber == Config.PPG) {
+                        if (spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_1_FIRE,
+                                Spindexer.SpindexerRotationalState.SLOT_0_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)) {
+                            AutoState = AutonomousState.DRIVE_TO_PICKUP_FAR;
+                            break;
+                        }
+                        else{
+                            //if we haven't fired 3 balls yet, break; and come back in later
+                            break;
+                        }
                     }
                     case DRIVE_TO_PICKUP_FAR:
                     //strafe to far pickup and turn to orient spike mark before pickuup
-                    if(pods.holdPosition(101, 37.5,-90, regularPathSpeed)){
+                    if(pods.holdPosition(103, 37.5,-90, regularPathSpeed)){
                         //set intake speed to prepare for ball
                         turret.setIntakeSpeed(1.0);
                         //go to next state to actually pickup
-                        AutoState = AutonomousState.PICKUP_BALL_FAR_PICKUP;
+                        //
+                         AutoState = AutonomousState.PICKUP_BALL_FAR_PICKUP;
                         break;
                     }else{
                         break;
                     }
                 case PICKUP_BALL_FAR_PICKUP:
                     //drive robot into the 3 balls and pick them up
-                    if(pods.holdPosition(135, 35.5, -90, pickupBallSpeed-0.06)){
+                    if(pods.holdPosition(128, 35.5, -90, pickupBallSpeed)){
                         AutoState = AutonomousState.DRIVE_BACK_FROM_FAR_PICKUP;
                     }else{
                         //auto spin spindexer to next state after detecting a ball
@@ -177,16 +203,42 @@ public class FarRedV2 extends LinearOpMode {
                     }
                 case SHOOT_2:
                     //fire 3 balls code
-                    if(spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_0_FIRE, Spindexer.SpindexerRotationalState.SLOT_1_FIRE,
-                            Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)){
-                        AutoState = AutonomousState.DRIVE_TO_MIDDLE_PICKUP;
+                    if(motifNumber == Config.GPP) {
+                        if (spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_0_FIRE,
+                                Spindexer.SpindexerRotationalState.SLOT_1_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)) {
+                            AutoState = AutonomousState.DRIVE_TO_MIDDLE_PICKUP;
+                            break;
+                        }
+                        else{
+                            //if we haven't fired 3 balls yet, break; and come back in later
+                            break;
+                        }
                     }
-                    else{
-                        break;
+                    else if(motifNumber == Config.PGP) {
+                        if (spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_1_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_FIRE,
+                                Spindexer.SpindexerRotationalState.SLOT_0_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)) {
+                            AutoState = AutonomousState.DRIVE_TO_MIDDLE_PICKUP;
+                            break;
+                        }
+                        else{
+                            //if we haven't fired 3 balls yet, break; and come back in later
+                            break;
+                        }
+                    }
+                    else if(motifNumber == Config.PPG) {
+                        if (spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_0_FIRE, Spindexer.SpindexerRotationalState.SLOT_1_FIRE,
+                                Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)) {
+                            AutoState = AutonomousState.DRIVE_TO_MIDDLE_PICKUP;
+                            break;
+                        }
+                        else{
+                            //if we haven't fired 3 balls yet, break; and come back in later
+                            break;
+                        }
                     }
                     case DRIVE_TO_MIDDLE_PICKUP:
                     //prepare for the pickup by aligning robot with the spike mark
-                    if(pods.holdPosition(102,60,-90,regularPathSpeed)){
+                    if(pods.holdPosition(103,60,-90,regularPathSpeed)){
 
                         AutoState = AutonomousState.PICKUP_BALL_MIDDLE_PICKUP;
                     }
@@ -197,7 +249,7 @@ public class FarRedV2 extends LinearOpMode {
                 case PICKUP_BALL_MIDDLE_PICKUP:
                     //run through ball to pick it up
                     turret.setIntakeSpeed(1);
-                    if(pods.holdPosition(134,60,-90,pickupBallSpeed)){
+                    if(pods.holdPosition(128,60,-90,pickupBallSpeed)){
                         //stop intake when position is reached
                         turret.setIntakeSpeed(0);
                         AutoState = AutonomousState.DRIVE_BACK_FROM_MIDDLE_PICKUP;
@@ -222,7 +274,7 @@ public class FarRedV2 extends LinearOpMode {
                             //if the spindexer state is 2 and we see a then end this pickup
                             else if (spindexer.getState() == Spindexer.SpindexerRotationalState.SLOT_1_PICKUP&& pickupTimer.seconds() > 0.4) {
                                 spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
-                                AutoState = AutonomousState.DRIVE_BACK_FROM_FAR_PICKUP;
+                                AutoState = AutonomousState.DRIVE_BACK_FROM_MIDDLE_PICKUP;
                                 turret.setIntakeSpeed(0);
                                 break;
                             }
@@ -241,23 +293,47 @@ public class FarRedV2 extends LinearOpMode {
                     }
                 case SHOOT_3:
                     //add shooting code here
-                    if(spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_0_FIRE, Spindexer.SpindexerRotationalState.SLOT_1_FIRE,
-                            Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)){
-                        AutoState = AutonomousState.PARK;
+                    if(motifNumber == Config.GPP) {
+                        if (spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_0_FIRE, Spindexer.SpindexerRotationalState.SLOT_1_FIRE,
+                                Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)) {
+                            AutoState = AutonomousState.PARK;
+                            break;
+                        }
+                        else{
+                            //if we haven't fired 3 balls yet, break; and come back in later
+                            break;
+                        }
                     }
-                    else{
-                        break;
+                    else if(motifNumber == Config.PGP) {
+                        if (spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_1_FIRE, Spindexer.SpindexerRotationalState.SLOT_0_FIRE,
+                                Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)) {
+                            AutoState = AutonomousState.PARK;
+                            break;
+                        }
+                        else{
+                            //if we haven't fired 3 balls yet, break; and come back in later
+                            break;
+                        }
                     }
-
+                    else if(motifNumber == Config.PPG) {
+                        if (spindexer.fire3Balls(Spindexer.SpindexerRotationalState.SLOT_2_FIRE, Spindexer.SpindexerRotationalState.SLOT_1_FIRE,
+                                Spindexer.SpindexerRotationalState.SLOT_0_FIRE, Spindexer.SpindexerRotationalState.SLOT_2_PICKUP)) {
+                            AutoState = AutonomousState.PARK;
+                            break;
+                        }
+                        else{
+                            //if we haven't fired 3 balls yet, break; and come back in later
+                            break;
+                        }
+                    }
                 case PARK:
                     //park outside the far triangle to prepare to open the gate
                     pods.holdPosition(90,30,0,regularPathSpeed);
                     stopAiming = true;
                     turret.setTurretPositionDegrees(0,regularPathSpeed);
-                    while(opModeIsActive()){
                         //shut off flywheel
                         turret.setFlywheelToRPM(0);
-                    }
+
 
             }
         }

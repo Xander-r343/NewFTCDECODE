@@ -56,9 +56,9 @@ public class Config {
 
     //pindexer
     //time for axon spindexer with MAX mk2 to move 1 slot position
-    public final double timePerDegInSeconds =0.7;
+    public final double timePerDegInSeconds =0.9;
     //flicker servo time same thing
-    public final double timeForFlickInSeconds = 0.2;
+    public final double timeForFlickInSeconds = 0.25;
 
 
     public final String firingServoName = "firingServo";
