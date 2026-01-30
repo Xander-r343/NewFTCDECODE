@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -57,8 +58,9 @@ public class    Turret {
         //set motor runMode
         turretRotater = hardwareMap.get(DcMotorEx.class, config.turretRotationName);
         turretRotater.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        turretRotater.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turretRotater.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         turretRotater.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setPIDF_constants(11.0,0,-0.1,6);
         //initalize left motor
         leftFlywheelMotor = hardwareMap.get(DcMotorEx.class, config.newRobotLeftFlywheel);
         leftFlywheelMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -130,11 +132,17 @@ public class    Turret {
     }
     public void setTurretUsingVelAim(){
         //scalars
-        double XYScalar = 0.1;
+        double XYScalar = 0.8;
+        double angularScalar = 0.2;
         //correct the heading, x, and y controllers based on current velocity
         double correctedXPos = aimbots.pods.getX() + (aimbots.pods.getVelX()* XYScalar);
         double correctedYPos = aimbots.pods.getY() + (aimbots.pods.getVelY()* XYScalar);
-        setTurretPositionDegrees(-Math.toDegrees(Math.atan2(aimbots.targetX- correctedXPos, correctedYPos)),1);
+        double correctedHeadingPos = aimbots.pods.getVelH() * angularScalar;
+        setTurretPositionDegrees(-Math.toDegrees(Math.atan2(aimbots.targetX- correctedXPos, aimbots.targetY - correctedYPos) +correctedHeadingPos),1);
+        telemetry.addData("",-Math.toDegrees(Math.atan2(aimbots.targetX- correctedXPos, aimbots.targetY - correctedYPos)));
+        telemetry.addData("x",aimbots.pods.getVelX());
+        telemetry.addData("y",aimbots.pods.getVelY());
+        telemetry.update();
 
     }
 
@@ -226,6 +234,10 @@ public class    Turret {
             }
         }
         return 0;
+    }
+    public void setPIDF_constants(double p,double i, double d, double f ){
+        PIDFCoefficients coefficients = new PIDFCoefficients(p,i,d,f);
+        turretRotater.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coefficients);
     }
 
 

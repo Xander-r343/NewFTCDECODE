@@ -263,7 +263,7 @@ public class TeleOp_V2_1 extends OpMode {
         if(!manualFlywheel) {
             vel = (int)(values[1]);
             hoodAngle = values[0] + 0.1;
-            turret.turretSetIdealAngleUsingLLandPods();
+            turret.setTurretUsingVelAim();
         }
         turret.setFlywheelToRPM(vel);
         spindexer.updateState();

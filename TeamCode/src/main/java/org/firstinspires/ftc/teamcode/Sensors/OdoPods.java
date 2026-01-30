@@ -106,8 +106,8 @@ public class OdoPods {
     public double getVelH() {
         return pinpoint.getHeadingVelocity();
     }
-    public double getVelX(){return  pinpoint.getVelX();}
-    public double getVelY(){return  pinpoint.getVelY();}
+    public double getVelX(){return  pinpoint.getVelX()/25.4;}
+    public double getVelY(){return  pinpoint.getVelY()/25.4;}
 
 
     public void update() {

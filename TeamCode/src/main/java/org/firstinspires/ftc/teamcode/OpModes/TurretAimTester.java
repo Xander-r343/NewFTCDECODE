@@ -46,10 +46,11 @@ public class TurretAimTester extends OpMode {
         //initialize subsystems
         drivetrain = new MecanumDrivetrain(1, hardwareMap);
         pods = new OdoPods(hardwareMap, drivetrain);
+        pods.setPosition(88,9,0);
         // pods.setPosition(72,9,0);
-        aimbots = new Aimbots((int)blackboard.get(config.AllianceKey), pods, hardwareMap);
+        aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
         //rbgIndicator = hardwareMap.get(Servo.class, config.RBGName);
-        turret = new Turret(hardwareMap, (int)blackboard.get(config.AllianceKey), aimbots, telemetry);
+        turret = new Turret(hardwareMap, config.RedAlliance, aimbots, telemetry);
         //initialize the robotSubsystem class
         //robotSubsystem = new ShooterSubsystem(hardwareMap);
         vel = 0;
@@ -80,20 +81,15 @@ public class TurretAimTester extends OpMode {
         }
         //update
         values = AimbotV2.getValues(aimbots.calculateSideLengthUsingPods());
-        telemetry.addData("e", turret.getRpm());
         telemetry.addData("heading", aimbots.pods.getHeading());
         telemetry.addData("x", aimbots.pods.getX());
         telemetry.addData("y", aimbots.pods.getY());
-        telemetry.addData("spin", spindexer.getState());
-        telemetry.addData("flik", spindexer.getFlickerState());
+
         if(enableFiring) {
-            vel = (int)(values[1]);
             hoodAngle = values[0] + 0.1;
             turret.setTurretUsingVelAim();
         }
         drivetrain.drive(-gamepad1.left_stick_y * 1, 1 * gamepad1.left_stick_x, gamepad1.right_stick_x * 0.8);
-
-        turret.setFlywheelToRPM(vel);
         spindexer.updateState();
         turret.setHoodLaunchAngle(hoodAngle);
         telemetry.update();

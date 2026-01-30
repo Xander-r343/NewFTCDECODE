@@ -34,9 +34,13 @@ public class Aimbots {
         if (alliance == config.RedAlliance) {
             AvertX = config.RedAllianceTargetX;
             AvertY = config.RedAllianceTargetY;
+            targetX = config.RedAllianceTargetX;
+            targetY = config.RedAllianceTargetY;
         } else if (alliance == config.BlueAlliance) {
             AvertX = config.BlueAllianceTargetX;
             AvertY = config.BlueAllianceTargetY;
+            targetX = config.BlueAllianceTargetX;
+            targetY = config.BlueAllianceTargetY;
         }
         givenAlliance = alliance;
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
