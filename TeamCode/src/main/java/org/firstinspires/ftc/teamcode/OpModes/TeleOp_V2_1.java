@@ -62,6 +62,8 @@ public class TeleOp_V2_1 extends OpMode {
         timer = new ElapsedTime();
         spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
         spindexer.reloadFlickerServo();
+        turret.setTurretOffset((int)blackboard.put(config.turretOffsetKey, turret.getTurretPositionDegreesNotOffField()));
+
     }
 
     @Override
@@ -209,10 +211,10 @@ public class TeleOp_V2_1 extends OpMode {
             }
         }
         if (currentGamepad2.right_stick_x > 0.8 && previousGamepad2.right_stick_x < 0.8 && gamepad2.right_stick_x > 0){
-            turret.setTurretPositionDegrees(turret.getTurretPositionDegrees() + 5,1);
+            turret.setTurretPositionDegrees(turret.getTurretPositionDegreesNotOffField() + 5,1);
         }
         if (currentGamepad2.right_stick_x < -0.8 && previousGamepad2.right_stick_x > -0.8 && gamepad2.right_stick_x < 0){
-            turret.setTurretPositionDegrees(turret.getTurretPositionDegrees() - 5,1);
+            turret.setTurretPositionDegrees(turret.getTurretPositionDegreesNotOffField() - 5,1);
         }
         if(currentGamepad2.right_stick_button && !previousGamepad2.right_stick_button){
             if(!manualFlywheel){

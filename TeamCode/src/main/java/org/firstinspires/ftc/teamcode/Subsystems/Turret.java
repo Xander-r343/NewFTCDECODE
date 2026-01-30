@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -16,9 +14,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Configs.Config;
-import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 
 
 import java.util.List;
@@ -48,6 +44,7 @@ public class    Turret {
     boolean aimContinuously;
     Telemetry telemetry;
     ControlSystem controlSystem;
+    double turretOffset = 0;
     public Turret(@NonNull HardwareMap hardwareMap, int alliance, Aimbots givenAimbots, Telemetry tel){
         //initalize turret servos and motor
         config = new Config();
@@ -100,16 +97,16 @@ public class    Turret {
 
     public void setTurretPositionDegrees(double AngleOfTarget, double power){
         int targetPose = 0;
-        if(aimbots.pods.getHeading() - AngleOfTarget <=135 && aimbots.pods.getHeading() -AngleOfTarget  >= -135) {
+        if(aimbots.pods.getHeading() - (AngleOfTarget- turretOffset) <=135 && aimbots.pods.getHeading() -(AngleOfTarget-turretOffset)  >= -135) {
             targetPose = (int)AngleOfTarget;
         }
-        else if(aimbots.pods.getHeading() - AngleOfTarget < -135){
+        else if(aimbots.pods.getHeading() - (AngleOfTarget-turretOffset) < -135){
             targetPose = -135;
         }
-        else if(aimbots.pods.getHeading() -AngleOfTarget  > 135){
+        else if(aimbots.pods.getHeading() -(AngleOfTarget-turretOffset)  > 135){
             targetPose = 135;
         }
-        turretRotater.setTargetPosition((int)((targetPose - aimbots.pods.getHeading() )*config.ticksPerDegree));
+        turretRotater.setTargetPosition((int)(((targetPose -turretOffset) - aimbots.pods.getHeading() )*config.ticksPerDegree));
         //sets the motor to runnnn
         turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //sets power to given power
@@ -117,7 +114,7 @@ public class    Turret {
     }
 
 
-    public double getTurretPositionDegrees(){
+    public double getTurretPositionDegreesNotOffField(){
         return ((turretRotater.getCurrentPosition()/config.ticksPerDegree));
     }
     public void turretSetIdealAngleUsingLLandPods(){
@@ -239,7 +236,9 @@ public class    Turret {
         PIDFCoefficients coefficients = new PIDFCoefficients(p,i,d,f);
         turretRotater.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coefficients);
     }
-
+    public void setTurretOffset(double givenAngle){
+        turretOffset = givenAngle;
+    }
 
 
 

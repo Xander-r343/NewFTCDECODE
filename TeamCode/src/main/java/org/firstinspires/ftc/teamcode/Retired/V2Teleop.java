@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Retired;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -163,7 +162,7 @@ public class V2Teleop extends OpMode {
         telemetry.addData("hood", hoodAngle);
         telemetry.addData("color", spindexer.getBallColorImmediately());
         telemetry.addData("rpm", values[1]);
-        telemetry.addData("turret", turret.getTurretPositionDegrees());
+        telemetry.addData("turret", turret.getTurretPositionDegreesNotOffField());
         telemetry.update();
     }
 

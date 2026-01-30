@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.OpModes;
+package org.firstinspires.ftc.teamcode.OpModes.Autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 import org.firstinspires.ftc.teamcode.Utilities.AimbotV2;
-@Autonomous()
+@Autonomous(name = "Far Zone Red V2.2.1")
 public class FarRedV2 extends LinearOpMode {
     Servo rgb;
     ShooterSubsystem robotSubsystem;
@@ -26,7 +26,7 @@ public class FarRedV2 extends LinearOpMode {
     Object Headingpos;
     Object Alliance;
     Config config;
-    AutonomousState AutoState;
+    private AutonomousState AutoState;
     ElapsedTime timer;
     double speed;
     double time;
@@ -47,7 +47,7 @@ public class FarRedV2 extends LinearOpMode {
     boolean ball1pickedUp = false;
     boolean ball2pickedUp = false;
 
-    enum  AutonomousState{
+    private enum  AutonomousState{
         SCAN_APRILTAG, INIT, SHOOT_1, DRIVE_TO_PICKUP_FAR, PICKUP_BALL_FAR_PICKUP, DRIVE_BACK_FROM_FAR_PICKUP,
         SHOOT_2, DRIVE_TO_MIDDLE_PICKUP, PICKUP_BALL_MIDDLE_PICKUP, DRIVE_BACK_FROM_MIDDLE_PICKUP,
         PICKUP_CORNER, SHOOT_3, PARK
@@ -69,6 +69,8 @@ public class FarRedV2 extends LinearOpMode {
         spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
         // store alliance and position info for Teleop
         blackboard.put(config.AllianceKey,config.RedAlliance);
+        blackboard.put(config.turretOffsetKey, turret.getTurretPositionDegreesNotOffField());
+
         spindexer.reloadFlickerServo();
         while(opModeInInit() && motifNumber == 0){
             if(turret.getFidicualResults() != Config.GPP || turret.getFidicualResults() != Config.PGP||
@@ -87,6 +89,7 @@ public class FarRedV2 extends LinearOpMode {
             spindexer.updateState();
             pods.update();
             turret.update();
+            blackboard.put(config.turretOffsetKey, turret.getTurretPositionDegreesNotOffField());
             //should this be moved out of the while loop? They are init values, right?
             turret.setServoPoseManaul(0.95);
             if(!stopAiming)

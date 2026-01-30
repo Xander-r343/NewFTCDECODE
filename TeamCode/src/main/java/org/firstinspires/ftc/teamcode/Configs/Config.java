@@ -118,4 +118,5 @@ public class Config {
     public static final int GPP = 21;
     //ppg is 23
     public static final int PPG = 23;
+    public final String turretOffsetKey =  "turret";
 }
