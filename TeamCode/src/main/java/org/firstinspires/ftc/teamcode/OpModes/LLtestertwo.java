@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Sensors.OdoPods;
 import org.firstinspires.ftc.teamcode.Subsystems.Aimbots;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
-@TeleOp
+@Disabled
 public class LLtestertwo extends OpMode {
     MecanumDrivetrain drivetrain;
     OdoPods pods;
@@ -27,7 +28,7 @@ public class LLtestertwo extends OpMode {
         robotSubsystem = new ShooterSubsystem(hardwareMap);
         aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
         aimbots.startLL();
-        aimbots.switchPipeline(0);
+        aimbots.switchPipeline(2);
     }
 
     @Override

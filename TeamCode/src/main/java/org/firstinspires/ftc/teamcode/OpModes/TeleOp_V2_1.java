@@ -62,18 +62,15 @@ public class TeleOp_V2_1 extends OpMode {
         timer = new ElapsedTime();
         spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_PICKUP);
         spindexer.reloadFlickerServo();
-        turret.setTurretOffset((int)blackboard.put(config.turretOffsetKey, turret.getTurretPositionDegreesNotOffField()));
-
+        turret.setTurretOffset(((double)blackboard.put(config.turretOffsetKey, turret.getTurretPositionDegreesNotOffField())));
     }
 
     @Override
     public void loop() {
-
         previousGamepad1.copy(currentGamepad1);
         currentGamepad1.copy(gamepad1);
         previousGamepad2.copy(currentGamepad2);
         currentGamepad2.copy(gamepad2);
-
         //spindexer controls for FIRING:
         //attack (avdacnce)
         if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right) {

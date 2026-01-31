@@ -73,12 +73,6 @@ public class    Turret {
         //initalize limelight
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.start();
-        if(alliance == config.RedAlliance){
-            limelight.pipelineSwitch(0);
-        }
-        else if(alliance == config.BlueAlliance){
-            limelight.pipelineSwitch(1);
-        }
         //aiming:
         aimbots = givenAimbots;
         aimContinuously = false;
@@ -97,16 +91,16 @@ public class    Turret {
 
     public void setTurretPositionDegrees(double AngleOfTarget, double power){
         int targetPose = 0;
-        if(aimbots.pods.getHeading() - (AngleOfTarget- turretOffset) <=135 && aimbots.pods.getHeading() -(AngleOfTarget-turretOffset)  >= -135) {
+        if(aimbots.pods.getHeading() - (AngleOfTarget) <=135 && aimbots.pods.getHeading() -(AngleOfTarget)  >= -135) {
             targetPose = (int)AngleOfTarget;
         }
-        else if(aimbots.pods.getHeading() - (AngleOfTarget-turretOffset) < -135){
+        else if(aimbots.pods.getHeading() - (AngleOfTarget) < -135){
             targetPose = -135;
         }
-        else if(aimbots.pods.getHeading() -(AngleOfTarget-turretOffset)  > 135){
+        else if(aimbots.pods.getHeading() -(AngleOfTarget)  > 135){
             targetPose = 135;
         }
-        turretRotater.setTargetPosition((int)(((targetPose -turretOffset) - aimbots.pods.getHeading() )*config.ticksPerDegree));
+        turretRotater.setTargetPosition((int)(((targetPose) - aimbots.pods.getHeading() -turretOffset)*config.ticksPerDegree));
         //sets the motor to runnnn
         turretRotater.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //sets power to given power
@@ -136,11 +130,6 @@ public class    Turret {
         double correctedYPos = aimbots.pods.getY() + (aimbots.pods.getVelY()* XYScalar);
         double correctedHeadingPos = aimbots.pods.getVelH() * angularScalar;
         setTurretPositionDegrees(-Math.toDegrees(Math.atan2(aimbots.targetX- correctedXPos, aimbots.targetY - correctedYPos) +correctedHeadingPos),1);
-        telemetry.addData("",-Math.toDegrees(Math.atan2(aimbots.targetX- correctedXPos, aimbots.targetY - correctedYPos)));
-        telemetry.addData("x",aimbots.pods.getVelX());
-        telemetry.addData("y",aimbots.pods.getVelY());
-        telemetry.update();
-
     }
 
     /**
@@ -223,7 +212,6 @@ public class    Turret {
                 }
                 else if(i.getFiducialId() ==  Config.PGP){
                     return Config.PGP;
-
                 }
                 else if(i.getFiducialId() ==  Config.GPP){
                     return Config.GPP;
@@ -238,6 +226,9 @@ public class    Turret {
     }
     public void setTurretOffset(double givenAngle){
         turretOffset = givenAngle;
+    }
+    public void pipeLineSwitch(int targetPipeline){
+        limelight.pipelineSwitch(targetPipeline);
     }
 
 

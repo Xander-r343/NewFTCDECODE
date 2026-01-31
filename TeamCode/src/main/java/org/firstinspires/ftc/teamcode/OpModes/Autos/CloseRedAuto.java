@@ -215,19 +215,7 @@ public class CloseRedAuto extends LinearOpMode {
                     turret.setTurretPositionDegrees(0,regularPathSpeed);
                     //shut off flywheel
                     turret.setFlywheelToRPM(0);
-
-
-
             }
-
-
-
-
-
-
-
-
-
         }
     }
 
