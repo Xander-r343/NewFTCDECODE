@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.Subsystems.Spindexer;
 import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 import org.firstinspires.ftc.teamcode.Utilities.AimbotV2;
-@Autonomous(name = "Far Zone Red V2.2.1")
-public class FarRedV2 extends LinearOpMode {
+@Autonomous(name = "Far Zone Blue V2.2.1")
+public class FarBlueV2 extends LinearOpMode {
     Servo rgb;
     ShooterSubsystem robotSubsystem;
     OdoPods pods;
@@ -60,17 +60,16 @@ public class FarRedV2 extends LinearOpMode {
         pathDatabase = new RedAutoPaths();
         config = new Config();//intialize blackboard objects
         //initialize odopods by using the config class
-        pods.setPosition(88, 9, 0);
+        pods.setPosition(56, 9, 0);
         timer = new ElapsedTime();
         AutoState = AutonomousState.INIT;
-        aimbots = new Aimbots(config.RedAlliance, pods, hardwareMap);
-        turret = new Turret(hardwareMap, config.RedAlliance, aimbots,telemetry);
+        aimbots = new Aimbots(config.BlueAlliance, pods, hardwareMap);
+        turret = new Turret(hardwareMap, config.BlueAlliance, aimbots,telemetry);
         spindexer = new Spindexer(hardwareMap, runtime, telemetry);
         spindexer.moveSpindexerToPos(Spindexer.SpindexerRotationalState.SLOT_0_FIRE);
         // store alliance and position info for Teleop
-        blackboard.put(config.AllianceKey,config.RedAlliance);
+        blackboard.put(config.AllianceKey,config.BlueAlliance);
         blackboard.put(config.turretOffsetKey, turret.getTurretPositionDegreesNotOffField());
-
         spindexer.reloadFlickerServo();
         while(opModeInInit()){
             turret.pipeLineSwitch(2);
@@ -150,21 +149,21 @@ public class FarRedV2 extends LinearOpMode {
                             break;
                         }
                     }
-                    case DRIVE_TO_PICKUP_FAR:
+                case DRIVE_TO_PICKUP_FAR:
                     //strafe to far pickup and turn to orient spike mark before pickuup
-                    if(pods.holdPosition(103, 37.5,-90, regularPathSpeed)){
+                    if(pods.holdPosition(41, 37.5,90, regularPathSpeed)){
                         //set intake speed to prepare for ball
                         turret.setIntakeSpeed(1.0);
                         //go to next state to actually pickup
                         //
-                         AutoState = AutonomousState.PICKUP_BALL_FAR_PICKUP;
+                        AutoState = AutonomousState.PICKUP_BALL_FAR_PICKUP;
                         break;
                     }else{
                         break;
                     }
                 case PICKUP_BALL_FAR_PICKUP:
                     //drive robot into the 3 balls and pick them up
-                    if(pods.holdPosition(128, 37.5, -90, pickupBallSpeed)){
+                    if(pods.holdPosition(16, 37.5, 90, pickupBallSpeed)){
                         AutoState = AutonomousState.DRIVE_BACK_FROM_FAR_PICKUP;
                     }else{
                         //auto spin spindexer to next state after detecting a ball
@@ -195,12 +194,12 @@ public class FarRedV2 extends LinearOpMode {
                             }
                         }
                         //make sure odo is driving
-                        pods.holdPosition(135, 37.5, -90, pickupBallSpeed);
+                        pods.holdPosition(16, 37.5, 90, pickupBallSpeed);
                         break;
                     }
                 case DRIVE_BACK_FROM_FAR_PICKUP:
                     //drive back to the far launch zone triangle after pickup
-                    if(pods.holdPosition(90,14,-90,regularPathSpeed)){
+                    if(pods.holdPosition(54,14,90,regularPathSpeed)){
                         //go next state after reaching the far triangle
                         AutoState = AutonomousState.SHOOT_2;
                     }
@@ -208,7 +207,7 @@ public class FarRedV2 extends LinearOpMode {
                         //update turret position
                         turret.turretSetIdealAngleUsingLLandPods();
                         //reset odometry position
-                        pods.holdPosition(90,14,-90,regularPathSpeed);
+                        pods.holdPosition(54,14,90,regularPathSpeed);
                         break;
                     }
                 case SHOOT_2:
@@ -246,20 +245,20 @@ public class FarRedV2 extends LinearOpMode {
                             break;
                         }
                     }
-                    case DRIVE_TO_MIDDLE_PICKUP:
+                case DRIVE_TO_MIDDLE_PICKUP:
                     //prepare for the pickup by aligning robot with the spike mark
-                    if(pods.holdPosition(103,60,-90,regularPathSpeed)){
+                    if(pods.holdPosition(41,60,90,regularPathSpeed)){
 
                         AutoState = AutonomousState.PICKUP_BALL_MIDDLE_PICKUP;
                     }
                     else{
-                        pods.holdPosition(102,60,-90,regularPathSpeed);
+                        pods.holdPosition(41,60,90,regularPathSpeed);
                         break;
                     }
                 case PICKUP_BALL_MIDDLE_PICKUP:
                     //run through ball to pick it up
                     turret.setIntakeSpeed(1);
-                    if(pods.holdPosition(126,60,-90,pickupBallSpeed)){
+                    if(pods.holdPosition(41,60,90,pickupBallSpeed)){
                         //stop intake when position is reached
                         turret.setIntakeSpeed(0);
                         AutoState = AutonomousState.DRIVE_BACK_FROM_MIDDLE_PICKUP;
@@ -295,11 +294,11 @@ public class FarRedV2 extends LinearOpMode {
                     }
                 case DRIVE_BACK_FROM_MIDDLE_PICKUP:
                     //drive back to fire ball
-                    if(pods.holdPosition(90,14,-90,regularPathSpeed)){
+                    if(pods.holdPosition(54,14,90,regularPathSpeed)){
                         AutoState = AutonomousState.SHOOT_3;
                     }
                     else{
-                        pods.holdPosition(90,14,-90,regularPathSpeed);
+                        pods.holdPosition(54,14,90,regularPathSpeed);
                         break;
                     }
                 case SHOOT_3:
@@ -339,11 +338,11 @@ public class FarRedV2 extends LinearOpMode {
                     }
                 case PARK:
                     //park outside the far triangle to prepare to open the gate
-                    pods.holdPosition(90,30,0,regularPathSpeed);
+                    pods.holdPosition(54,30,0,regularPathSpeed);
                     stopAiming = true;
                     turret.setTurretPositionDegrees(0,regularPathSpeed);
-                        //shut off flywheel
-                        turret.setFlywheelToRPM(0);
+                    //shut off flywheel
+                    turret.setFlywheelToRPM(0);
 
 
             }
